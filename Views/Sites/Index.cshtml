@@ -1,0 +1,6 @@
+@model IReadOnlyList<IisSiteInfo>
+@{ ViewData["Title"] = "IIS Siteleri"; }
+<div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h3 mb-0">IIS Siteleri</h1><a asp-action="Create" class="btn btn-primary">Yeni site</a></div>
+@if(ViewBag.IisError is not null){<div class="alert alert-warning"><strong>IIS okunamadı:</strong> @ViewBag.IisError<br/><small>Uygulamayı IIS yönetim yetkisi olan bir hesapla çalıştırın.</small></div>}
+<div class="row g-3">@foreach(var site in Model){<div class="col-lg-6"><div class="card h-100"><div class="card-body"><div class="d-flex justify-content-between"><h2 class="h5">@site.Name</h2><span class="badge bg-secondary">@site.State</span></div><div class="text-muted small mb-2">@site.PhysicalPath</div>@foreach(var binding in site.Bindings){<div><code>@binding</code></div>}</div></div></div>}</div>
+@if(Model.Count == 0 && ViewBag.IisError is null){<div class="text-muted">Kayıtlı site yok.</div>}

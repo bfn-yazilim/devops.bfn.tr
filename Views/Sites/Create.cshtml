@@ -1,0 +1,8 @@
+@model CreateSiteViewModel
+@{ ViewData["Title"] = "Yeni IIS Sitesi"; }
+<h1 class="h3">Yeni IIS sitesi</h1><p class="text-muted">Site dizini ayarlanan IIS kökü altında, aynı isimle oluşturulur.</p>
+<form method="post" class="col-md-6"><div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger"></span></div>
+<div class="mb-3"><label asp-for="Port" class="form-label"></label><input asp-for="Port" class="form-control" /></div>
+<div class="mb-3"><label asp-for="HostName" class="form-label"></label><input asp-for="HostName" class="form-control" placeholder="ornek.bfn.tr" /></div>
+<button class="btn btn-primary">Siteyi oluştur</button> <a asp-action="Index" class="btn btn-link">Vazgeç</a></form>
