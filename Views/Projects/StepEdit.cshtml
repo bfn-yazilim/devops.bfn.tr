@@ -1,0 +1,67 @@
+@model DeploymentStepEditViewModel
+@{ ViewData["Title"] = Model.Id == 0 ? "Güncelleme Adımı Ekle" : "Güncelleme Adımını Düzenle"; }
+<div class="mx-auto max-w-2xl">
+    <form method="post" class="card bg-base-100 shadow-sm">
+        <div class="card-body space-y-1">
+            <input asp-for="Id" type="hidden" /><input asp-for="ProjectId" type="hidden" />
+            <div asp-validation-summary="ModelOnly"></div>
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Adım adı</legend>
+                <input asp-for="Name" class="input w-full" />
+            </fieldset>
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Adım türü</legend>
+                <select asp-for="Type" asp-items="Html.GetEnumSelectList<DeploymentStepType>()" id="step-type" class="select w-full"></select>
+            </fieldset>
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Zaman aşımı (saniye)</legend>
+                <input asp-for="TimeoutSeconds" class="input w-full" />
+            </fieldset>
+            <div id="git-clone-fields" class="space-y-1">
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Git repository URL</legend>
+                    <input asp-for="GitRepositoryUrl" class="input w-full" placeholder="https://dev.azure.com/ornek/proje/_git/repo" />
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Branch</legend>
+                    <input asp-for="GitBranch" class="input w-full" placeholder="main" />
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Kullanıcı adı</legend>
+                    <input asp-for="GitUsername" class="input w-full" autocomplete="off" />
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Şifre / Personal Access Token</legend>
+                    <input asp-for="GitPassword" type="password" class="input w-full" autocomplete="new-password" />
+                </fieldset>
+            </div>
+            <fieldset id="settings-json-field" class="fieldset">
+                <legend class="fieldset-legend">Ayarlar (JSON)</legend>
+                <textarea asp-for="SettingsJson" class="textarea min-h-36 w-full font-mono"></textarea>
+                <p class="label">Kaynak, hedef, komut veya health-check URL gibi türe özel ayarlar.</p>
+            </fieldset>
+            <div class="flex gap-6 py-3">
+                <label class="label cursor-pointer gap-2"><input asp-for="IsEnabled" class="checkbox" /> Aktif</label>
+                <label class="label cursor-pointer gap-2"><input asp-for="ContinueOnError" class="checkbox" /> Hatada devam et</label>
+            </div>
+            <div class="card-actions justify-end pt-2">
+                <a asp-action="Steps" asp-route-id="@Model.ProjectId" class="btn btn-ghost">Vazgeç</a>
+                <button class="btn btn-primary">Kaydet</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+(function () {
+    var typeSelect = document.getElementById('step-type');
+    var gitFields = document.getElementById('git-clone-fields');
+    var jsonField = document.getElementById('settings-json-field');
+    var toggle = function () {
+        var isGitClone = typeSelect.value === 'GitClone';
+        gitFields.classList.toggle('hidden', !isGitClone);
+        jsonField.classList.toggle('hidden', isGitClone);
+    };
+    typeSelect.addEventListener('change', toggle);
+    toggle();
+})();
+</script>

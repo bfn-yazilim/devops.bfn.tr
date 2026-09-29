@@ -1,0 +1,20 @@
+@model List<BoardCard>
+<div class="flex items-center justify-between border-b border-base-300 px-5 py-3">
+    <h3 class="text-[13px] font-semibold">Arşivlenenler (@Model.Count)</h3>
+    <button type="button" class="btn btn-sm btn-square btn-ghost" onclick="archived_cards.close()" aria-label="Kapat">✕</button>
+</div>
+<div class="max-h-[70vh] space-y-2 overflow-y-auto px-5 py-4">
+    @if (Model.Count == 0) { <p class="text-[13px] text-base-content/50">Arşivlenmiş kart yok.</p> }
+    @foreach (var card in Model) {
+        <div class="flex items-center justify-between gap-3 rounded-md border border-base-300 p-3">
+            <div class="min-w-0">
+                <p class="truncate text-[13px] font-medium">@card.Title</p>
+                <p class="text-xs text-base-content/50">@card.Column.Name · @card.UpdatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+            </div>
+            <div class="flex shrink-0 gap-2">
+                <form asp-controller="Boards" asp-action="RestoreCard" asp-route-id="@card.Id" method="post"><button class="btn btn-ghost btn-xs">Geri al</button></form>
+                <form asp-controller="Boards" asp-action="DeleteCard" asp-route-id="@card.Id" method="post" onsubmit="return confirm('Bu kart kalıcı olarak silinsin mi?')"><button class="btn btn-ghost btn-xs text-error">Kalıcı sil</button></form>
+            </div>
+        </div>
+    }
+</div>

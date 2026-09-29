@@ -1,7 +1,23 @@
 @model CreateUserViewModel
 @{ ViewData["Title"] = "Yeni Kullanıcı"; }
-<h1 class="h3">Yeni kullanıcı</h1><form method="post" class="col-md-6"><div asp-validation-summary="ModelOnly" class="text-danger"></div>
-<div class="mb-3"><label asp-for="UserName" class="form-label"></label><input asp-for="UserName" class="form-control" /></div>
-<div class="mb-3"><label asp-for="Password" class="form-label"></label><input asp-for="Password" class="form-control" /></div>
-<div class="form-check mb-3"><input asp-for="IsAdministrator" class="form-check-input" /><label asp-for="IsAdministrator" class="form-check-label"></label></div>
-<button class="btn btn-primary">Oluştur</button> <a asp-action="Index" class="btn btn-link">Vazgeç</a></form>
+<div class="mx-auto max-w-xl">
+    <form method="post" class="card bg-base-100 shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title">Yeni kullanıcı</h2>
+            <div asp-validation-summary="ModelOnly"></div>
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Kullanıcı adı</legend>
+                <input asp-for="UserName" class="input w-full" />
+            </fieldset>
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Geçici parola</legend>
+                <input asp-for="Password" class="input w-full" />
+            </fieldset>
+            <label class="label cursor-pointer justify-start gap-3 py-3"><input asp-for="IsAdministrator" class="toggle" /><span>Yönetici yetkisi ver</span></label>
+            <div class="card-actions justify-end pt-2">
+                <a asp-action="Index" class="btn btn-ghost">Vazgeç</a>
+                <button class="btn btn-primary">Oluştur</button>
+            </div>
+        </div>
+    </form>
+</div>

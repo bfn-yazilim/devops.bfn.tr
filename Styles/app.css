@@ -1,0 +1,93 @@
+@import "tailwindcss";
+@source "../Views/**/*.cshtml";
+@source "../wwwroot/js/**/*.js";
+@plugin "daisyui" {
+  themes: light, dark, cupcake, bumblebee, emerald, corporate, synthwave, retro, cyberpunk, valentine, halloween, garden, forest, aqua, lofi, pastel, fantasy, wireframe, black, luxury, dracula, cmyk, autumn, business, acid, lemonade, night, coffee, winter, dim, nord, sunset;
+}
+@plugin "daisyui/theme" {
+  name: "bfnorbi";
+  default: true;
+  color-scheme: light;
+  --color-primary: rgb(107 70 201);
+  --color-primary-content: rgb(255 255 255);
+  --color-secondary: rgb(214 0 110);
+  --color-secondary-content: rgb(255 255 255);
+  --color-accent: rgb(46 102 196);
+  --color-accent-content: rgb(255 255 255);
+  --color-neutral: rgb(28 28 28);
+  --color-neutral-content: rgb(255 255 255);
+  --color-base-100: rgb(255 255 255);
+  --color-base-200: rgb(250 250 250);
+  --color-base-300: rgb(237 237 237);
+  --color-base-content: rgb(28 28 28);
+  --color-info: rgb(46 102 196);
+  --color-info-content: rgb(255 255 255);
+  --color-success: rgb(31 143 85);
+  --color-success-content: rgb(255 255 255);
+  --color-warning: rgb(192 124 16);
+  --color-warning-content: rgb(255 255 255);
+  --color-error: rgb(236 48 19);
+  --color-error-content: rgb(255 255 255);
+  --radius-selector: .375rem;
+  --radius-field: .375rem;
+  --radius-box: .5rem;
+  --size-selector: .25rem;
+  --size-field: .25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+@plugin "daisyui/theme" {
+  name: "bfnlight";
+  color-scheme: light;
+  --color-primary: oklch(55% 0.19 255);
+  --color-primary-content: oklch(98% 0.01 255);
+  --color-secondary: oklch(68% 0.15 190);
+  --color-accent: oklch(72% 0.16 75);
+  --color-neutral: oklch(26% 0.03 255);
+  --color-base-100: oklch(99% 0.005 255);
+  --color-base-200: oklch(96% 0.01 255);
+  --color-base-300: oklch(91% 0.015 255);
+  --color-base-content: oklch(24% 0.03 255);
+  --radius-box: .8rem;
+  --radius-field: .55rem;
+}
+@plugin "daisyui/theme" {
+  name: "bfndark";
+  color-scheme: dark;
+  --color-primary: oklch(72% 0.15 250);
+  --color-primary-content: oklch(18% 0.03 250);
+  --color-secondary: oklch(74% 0.13 190);
+  --color-accent: oklch(78% 0.14 75);
+  --color-neutral: oklch(20% 0.025 255);
+  --color-base-100: oklch(19% 0.025 255);
+  --color-base-200: oklch(16% 0.025 255);
+  --color-base-300: oklch(25% 0.025 255);
+  --color-base-content: oklch(93% 0.01 255);
+  --radius-box: .8rem;
+  --radius-field: .55rem;
+}
+
+@font-face { font-family: "Archivo Variable"; font-style: normal; font-display: swap; font-weight: 100 900; src: url("/fonts/archivo-variable-ext.woff2") format("woff2-variations"); }
+@font-face { font-family: "Archivo Variable"; font-style: normal; font-display: swap; font-weight: 100 900; src: url("/fonts/archivo-variable.woff2") format("woff2-variations"); }
+@font-face { font-family: "Outfit"; font-style: normal; font-display: swap; font-weight: 800; src: url("/fonts/outfit-800.woff2") format("woff2"); }
+
+body { min-height: 100vh; font-family: "Archivo Variable", ui-sans-serif, system-ui, sans-serif; font-size: 14px; }
+.font-brand { font-family: "Outfit", "Archivo Variable", sans-serif; }
+.validation-summary-errors { color: var(--color-error); font-size: .875rem; }
+.field-validation-error { color: var(--color-error); font-size: .75rem; }
+.dragging { opacity: .45; }
+
+[data-theme="bfnorbi"] body { background: rgb(241 241 241); letter-spacing: -.005em; }
+[data-theme="bfnorbi"] .card { border-color: rgb(220 220 220); box-shadow: 0 1px 2px rgb(0 0 0 / .035); }
+[data-theme="bfnorbi"] .card-body { gap: .625rem; }
+[data-theme="bfnorbi"] .card-title { font-size: .875rem; font-weight: 650; }
+[data-theme="bfnorbi"] .btn { min-height: 2rem; height: 2rem; padding-inline: .75rem; font-size: .75rem; font-weight: 650; }
+[data-theme="bfnorbi"] .btn-sm { min-height: 1.75rem; height: 1.75rem; padding-inline: .5rem; }
+[data-theme="bfnorbi"] .input, [data-theme="bfnorbi"] .select { min-height: 2.25rem; height: 2.25rem; font-size: .8125rem; }
+[data-theme="bfnorbi"] .textarea { font-size: .8125rem; }
+[data-theme="bfnorbi"] .label-text { font-size: .75rem; font-weight: 600; }
+[data-theme="bfnorbi"] .table :where(th,td) { padding-block: .625rem; font-size: .75rem; }
+[data-theme="bfnorbi"] .menu li > a { min-height: 2rem; border-radius: .25rem; font-size: .8125rem; color: rgb(75 75 75); }
+[data-theme="bfnorbi"] .menu li > a:hover { background: rgb(237 237 237); color: rgb(28 28 28); }
+[data-theme="bfnorbi"] .menu-title { padding: .75rem .5rem .25rem; font-size: .6875rem; letter-spacing: .08em; color: rgb(118 118 118); }

@@ -1,0 +1,29 @@
+{
+  "name": "devops.bfn.tr",
+  "version": "1.0.0",
+  "description": "Windows/IIS sunucuları için küçük bir ASP.NET Core yönetim paneli.",
+  "main": "index.js",
+  "scripts": {
+    "css:build": "npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/css/app.css --minify",
+    "css:watch": "npx @tailwindcss/cli -i ./Styles/app.css -o ./wwwroot/css/app.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bfn-yazilim/devops.bfn.tr.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bfn-yazilim/devops.bfn.tr/issues"
+  },
+  "homepage": "https://github.com/bfn-yazilim/devops.bfn.tr#readme",
+  "devDependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
+    "@fontsource/outfit": "^5.3.0",
+    "@tailwindcss/cli": "^4.3.3",
+    "daisyui": "^5.7.46",
+    "tailwindcss": "^4.3.3"
+  }
+}

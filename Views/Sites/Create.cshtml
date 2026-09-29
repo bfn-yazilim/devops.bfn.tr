@@ -1,8 +1,27 @@
 @model CreateSiteViewModel
 @{ ViewData["Title"] = "Yeni IIS Sitesi"; }
-<h1 class="h3">Yeni IIS sitesi</h1><p class="text-muted">Site dizini ayarlanan IIS kökü altında, aynı isimle oluşturulur.</p>
-<form method="post" class="col-md-6"><div asp-validation-summary="ModelOnly" class="text-danger"></div>
-<div class="mb-3"><label asp-for="Name" class="form-label"></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="text-danger"></span></div>
-<div class="mb-3"><label asp-for="Port" class="form-label"></label><input asp-for="Port" class="form-control" /></div>
-<div class="mb-3"><label asp-for="HostName" class="form-label"></label><input asp-for="HostName" class="form-control" placeholder="ornek.bfn.tr" /></div>
-<button class="btn btn-primary">Siteyi oluştur</button> <a asp-action="Index" class="btn btn-link">Vazgeç</a></form>
+<div class="mx-auto max-w-xl">
+    <form method="post" class="card bg-base-100 shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title">Yeni IIS sitesi</h2>
+            <p class="text-base-content/60">Site dizini IIS kökü altında oluşturulur.</p>
+            <div asp-validation-summary="ModelOnly"></div>
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Site adı</legend>
+                <input asp-for="Name" class="input w-full" />
+            </fieldset>
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Port</legend>
+                <input asp-for="Port" class="input w-full" />
+            </fieldset>
+            <fieldset class="fieldset">
+                <legend class="fieldset-legend">Host adı</legend>
+                <input asp-for="HostName" class="input w-full" placeholder="ornek.bfn.tr" />
+            </fieldset>
+            <div class="card-actions justify-end pt-2">
+                <a asp-action="Index" class="btn btn-ghost">Vazgeç</a>
+                <button class="btn btn-primary">Siteyi oluştur</button>
+            </div>
+        </div>
+    </form>
+</div>

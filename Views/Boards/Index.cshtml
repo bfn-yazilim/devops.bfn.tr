@@ -1,0 +1,58 @@
+@model Board
+@{ ViewData["Title"] = "Panolar"; }
+@Html.AntiForgeryToken()
+<div class="mb-6 flex items-center justify-between"><div><div class="text-sm font-semibold uppercase tracking-wider text-primary">Pano</div><h2 class="text-3xl font-bold">@Model.Name</h2></div><div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="window.openArchivedCards(@Model.Id)">Arşivlenenler (@ViewData["ArchivedCount"])</button><button class="btn btn-primary btn-sm" onclick="add_column.showModal()">+ Kolon</button></div></div>
+<div class="board-columns flex min-h-[65vh] gap-4 overflow-x-auto pb-5" data-board-id="@Model.Id">
+@foreach(var column in Model.Columns){<section draggable="true" data-column-id="@column.Id" class="board-column min-w-64 flex-1 rounded-box bg-[color-mix(in_oklab,var(--color-base-300),black_10%)] p-3"><div class="mb-3 flex cursor-grab items-center justify-between px-1"><h3 class="text-[13px] font-semibold">@column.Name</h3><div class="flex items-center gap-1"><span class="badge badge-ghost badge-sm">@column.Cards.Count</span><div class="dropdown dropdown-end" onclick="event.stopPropagation()"><button tabindex="0" type="button" class="btn btn-square btn-ghost btn-xs text-base-content/40" aria-label="Kolon menüsü">⋮</button><ul tabindex="0" class="menu dropdown-content z-30 w-48 rounded-box border border-base-300 bg-base-100 p-1 text-[13px] shadow-xl"><li><button type="button" onclick="rename_column_@(column.Id).showModal()">Adını değiştir</button></li><li><form asp-action="DeleteColumn" asp-route-id="@column.Id" method="post" class="contents" onsubmit="return confirm('Bu kolon ve içindeki tüm kartlar silinecek. Emin misiniz?')"><button type="submit" class="w-full text-left text-error">Kolonu sil</button></form></li></ul></div></div></div><div class="card-list min-h-20 space-y-3" data-column-id="@column.Id">
+@foreach(var card in column.Cards){
+<article draggable="true" data-card-id="@card.Id" class="board-card card cursor-pointer border border-base-300 bg-base-100 shadow-sm" onclick="window.openCardDetail(@card.Id)">
+    <div class="card-body gap-2 p-4">
+        <div class="flex items-start justify-between gap-2">
+            <h4 class="text-[13px] font-medium">@card.Title</h4>
+            <div class="dropdown dropdown-end" onclick="event.stopPropagation()">
+                <button tabindex="0" type="button" class="btn btn-square btn-ghost btn-xs text-base-content/40" aria-label="Kart menüsü">⋮</button>
+                <ul tabindex="0" class="menu dropdown-content z-30 w-52 rounded-box border border-base-300 bg-base-100 p-1 text-[13px] shadow-xl">
+                    <li><button type="button" onclick="window.openCardDetail(@card.Id)">Kartı Aç</button></li>
+                    <li><button type="button" onclick="window.openCardDetail(@card.Id)">Etiketleri düzenle</button></li>
+                    <li><button type="button" onclick="window.openCardDetail(@card.Id)">Atananı değiştir</button></li>
+                    <li><form asp-action="ArchiveCard" asp-route-id="@card.Id" method="post" class="contents"><button type="submit" class="w-full text-left">Arşivle</button></form></li>
+                </ul>
+            </div>
+        </div>
+        @if(!string.IsNullOrWhiteSpace(card.Description)){<p class="line-clamp-2 text-xs text-base-content/60">@card.Description</p>}
+        @if(!string.IsNullOrWhiteSpace(card.Tags)){<div class="flex flex-wrap gap-1">@foreach(var tag in card.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)){<span class="badge badge-ghost badge-xs">@tag</span>}</div>}
+        <div class="flex items-center justify-between pt-1">
+            <div class="flex items-center gap-1.5">
+                @if(card.Priority != CardPriority.Unspecified){<span class="badge @CardPriorityDisplay.BadgeClass(card.Priority) badge-xs">@CardPriorityDisplay.Label(card.Priority)</span>}
+                @if(card.DueAtUtc is not null){<span class="badge badge-xs @(card.DueAtUtc < DateTime.UtcNow ? "badge-error" : "badge-ghost")">@card.DueAtUtc.Value.ToString("dd.MM")</span>}
+            </div>
+            @if(card.AssignedUser is not null){<span class="avatar placeholder" title="@card.AssignedUser.UserName"><span class="w-5 rounded-full bg-primary text-[10px] text-primary-content">@card.AssignedUser.UserName![0].ToString().ToUpperInvariant()</span></span>}
+            else if(card.AssignedAgentId is not null){<span class="badge badge-secondary badge-xs">Agent</span>}
+        </div>
+    </div>
+</article>
+}
+</div>
+<div class="add-card-area mt-3" data-column-id="@column.Id">
+    <button type="button" class="add-card-btn btn btn-ghost btn-sm w-full justify-start text-[13px] text-base-content/60">+ Kart ekle</button>
+    <form asp-action="AddCard" method="post" class="add-card-form hidden">
+        <input name="columnId" value="@column.Id" type="hidden"/>
+        <textarea name="title" maxlength="200" required rows="2" class="textarea w-full resize-none bg-base-100 text-[13px] shadow-sm"
+                  placeholder="Bir başlık girin veya bir bağlantı yapıştırın"></textarea>
+        <div class="mt-2 flex items-center gap-2">
+            <button class="btn btn-primary btn-sm">Kart ekle</button>
+            <button type="button" class="cancel-add-card btn btn-square btn-ghost btn-sm" aria-label="Vazgeç">✕</button>
+        </div>
+    </form>
+</div>
+</section>
+<dialog id="rename_column_@(column.Id)" class="modal"><div class="modal-box"><h3 class="text-lg font-bold">Kolon adını değiştir</h3><form asp-action="RenameColumn" method="post" class="mt-4 space-y-4"><input name="id" value="@column.Id" type="hidden"/><input name="name" value="@column.Name" maxlength="80" required class="input w-full" placeholder="Kolon adı"/><div class="modal-action"><button type="button" class="btn" onclick="rename_column_@(column.Id).close()">Vazgeç</button><button class="btn btn-primary">Kaydet</button></div></form></div></dialog>
+}
+</div>
+<dialog id="add_column" class="modal"><div class="modal-box"><h3 class="text-lg font-bold">Yeni kolon</h3><form asp-action="AddColumn" method="post" class="mt-4 space-y-4"><input name="boardId" value="@Model.Id" type="hidden"/><input name="name" maxlength="80" required class="input w-full" placeholder="Kolon adı"/><div class="modal-action"><button type="button" class="btn" onclick="add_column.close()">Vazgeç</button><button class="btn btn-primary">Ekle</button></div></form></div></dialog>
+<dialog id="card_detail" class="modal modal-end"><div id="card_detail_content" class="modal-box h-screen max-h-none w-[420px] max-w-full p-0"></div></dialog>
+<dialog id="archived_cards" class="modal"><div id="archived_cards_content" class="modal-box w-[480px] max-w-full p-0"></div></dialog>
+@section Scripts {
+<script>window.setupBoard?.();</script>
+@if (ViewData["OpenCard"] is int openCardId) { <script>window.openCardDetail?.(@openCardId); history.replaceState(null, '', location.pathname);</script> }
+}

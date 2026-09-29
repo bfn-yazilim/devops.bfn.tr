@@ -5,7 +5,7 @@ using Microsoft.Web.Administration;
 namespace Bfn.DevOps.Services;
 
 public sealed class IisOptions { public string SitesRoot { get; set; } = @"C:\inetpub\wwwroot"; }
-public interface IIisService { IReadOnlyList<IisSiteInfo> GetSites(); void CreateSite(CreateSiteViewModel model); }
+public interface IIisService { IReadOnlyList<IisSiteInfo> GetSites(); void CreateSite(CreateSiteViewModel model); void ApplyProject(DevOpsProject project); }
 
 public sealed class IisService(IOptions<IisOptions> options) : IIisService
 {
@@ -33,6 +33,27 @@ public sealed class IisService(IOptions<IisOptions> options) : IIisService
         var site = manager.Sites.Add(model.Name, "http", binding, sitePath);
         site.ApplicationDefaults.ApplicationPoolName = model.Name;
         if (manager.ApplicationPools[model.Name] is null) manager.ApplicationPools.Add(model.Name);
+        manager.CommitChanges();
+    }
+
+    public void ApplyProject(DevOpsProject project)
+    {
+        EnsureWindows();
+        var sitePath = Path.GetFullPath(string.IsNullOrWhiteSpace(project.WorkingDirectory) ? Path.Combine(_root, project.Name) : project.WorkingDirectory);
+        if (!sitePath.StartsWith(_root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("Çalışma dizini izin verilen IIS kökünün altında olmalıdır.");
+        Directory.CreateDirectory(sitePath);
+        using var manager = new ServerManager();
+        if (manager.ApplicationPools[project.ApplicationPoolName] is null) manager.ApplicationPools.Add(project.ApplicationPoolName);
+        var site = manager.Sites[project.IisSiteName];
+        if (site is null)
+        {
+            var host = project.Url?.Trim() ?? "";
+            if (manager.Sites.SelectMany(x => x.Bindings).Any(x => x.Protocol == "http" && x.BindingInformation.Equals($"*:80:{host}", StringComparison.OrdinalIgnoreCase))) throw new InvalidOperationException("Bu host adı başka bir IIS sitesi tarafından kullanılıyor.");
+            site = manager.Sites.Add(project.IisSiteName, "http", $"*:80:{host}", sitePath);
+        }
+        site.ApplicationDefaults.ApplicationPoolName = project.ApplicationPoolName;
+        site.Applications["/"].ApplicationPoolName = project.ApplicationPoolName;
+        site.Applications["/"].VirtualDirectories["/"].PhysicalPath = sitePath;
         manager.CommitChanges();
     }
 

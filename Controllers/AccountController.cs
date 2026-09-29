@@ -10,7 +10,7 @@ public sealed class AccountController(UserManager<ApplicationUser> users, SignIn
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
     {
-        if (User.Identity?.IsAuthenticated == true) return RedirectToAction("Index", "Sites");
+        if (User.Identity?.IsAuthenticated == true) return RedirectToAction("Index", "Boards");
         ViewBag.ReturnUrl = returnUrl;
         return View(new LoginViewModel());
     }
@@ -27,7 +27,7 @@ public sealed class AccountController(UserManager<ApplicationUser> users, SignIn
         }
         var user = await users.FindByNameAsync(model.UserName);
         if (user?.MustChangePassword == true) return RedirectToAction(nameof(ChangePassword));
-        return LocalRedirect(Url.IsLocalUrl(returnUrl) ? returnUrl! : Url.Action("Index", "Sites")!);
+        return LocalRedirect(Url.IsLocalUrl(returnUrl) ? returnUrl! : Url.Action("Index", "Boards")!);
     }
 
     [Authorize]
@@ -48,7 +48,7 @@ public sealed class AccountController(UserManager<ApplicationUser> users, SignIn
         await users.UpdateAsync(user);
         await signIn.RefreshSignInAsync(user);
         TempData["Message"] = "Parolanız değiştirildi.";
-        return RedirectToAction("Index", "Sites");
+        return RedirectToAction("Index", "Boards");
     }
 
     [HttpPost, Authorize, ValidateAntiForgeryToken]

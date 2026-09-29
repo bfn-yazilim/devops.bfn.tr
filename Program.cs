@@ -35,6 +35,11 @@ public class Program
         builder.Services.Configure<IisOptions>(builder.Configuration.GetSection("Iis"));
         builder.Services.AddScoped<IIisService, IisService>();
         builder.Services.AddControllersWithViews();
+        builder.Services.Configure<Microsoft.AspNetCore.Routing.RouteOptions>(options =>
+        {
+            options.LowercaseUrls = true;
+            options.LowercaseQueryStrings = true;
+        });
 
         var app = builder.Build();
 
@@ -69,7 +74,7 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllerRoute(
-            name: "default", pattern: "{controller=Sites}/{action=Index}/{id?}");
+            name: "default", pattern: "{controller=Boards}/{action=Index}/{id?}");
 
         await DatabaseSeeder.SeedAsync(app.Services);
         await app.RunAsync();

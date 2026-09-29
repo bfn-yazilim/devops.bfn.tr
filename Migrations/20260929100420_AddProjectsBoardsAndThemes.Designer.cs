@@ -3,6 +3,7 @@ using System;
 using Bfn.DevOps.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bfn.DevOps.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260929100420_AddProjectsBoardsAndThemes")]
+    partial class AddProjectsBoardsAndThemes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.21");
@@ -123,42 +126,18 @@ namespace Bfn.DevOps.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("AssignedUserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("BoardColumnId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("CreatedByUserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("DueAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsArchived")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Priority")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValue("Unspecified");
-
                     b.Property<int>("SortOrder")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("Tags")
-                        .HasMaxLength(300)
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -170,43 +149,9 @@ namespace Bfn.DevOps.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssignedUserId");
-
-                    b.HasIndex("CreatedByUserId");
-
                     b.HasIndex("BoardColumnId", "SortOrder");
 
                     b.ToTable("BoardCards");
-                });
-
-            modelBuilder.Entity("Bfn.DevOps.Models.BoardCardComment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("AuthorUserId")
-                        .HasMaxLength(450)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("BoardCardId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorUserId");
-
-                    b.HasIndex("BoardCardId", "CreatedAtUtc");
-
-                    b.ToTable("BoardCardComments");
                 });
 
             modelBuilder.Entity("Bfn.DevOps.Models.BoardColumn", b =>
@@ -493,45 +438,13 @@ namespace Bfn.DevOps.Migrations
 
             modelBuilder.Entity("Bfn.DevOps.Models.BoardCard", b =>
                 {
-                    b.HasOne("Bfn.DevOps.Models.ApplicationUser", "AssignedUser")
-                        .WithMany()
-                        .HasForeignKey("AssignedUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("Bfn.DevOps.Models.BoardColumn", "Column")
                         .WithMany("Cards")
                         .HasForeignKey("BoardColumnId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Bfn.DevOps.Models.ApplicationUser", "CreatedByUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("AssignedUser");
-
                     b.Navigation("Column");
-
-                    b.Navigation("CreatedByUser");
-                });
-
-            modelBuilder.Entity("Bfn.DevOps.Models.BoardCardComment", b =>
-                {
-                    b.HasOne("Bfn.DevOps.Models.ApplicationUser", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Bfn.DevOps.Models.BoardCard", "Card")
-                        .WithMany("Comments")
-                        .HasForeignKey("BoardCardId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Author");
-
-                    b.Navigation("Card");
                 });
 
             modelBuilder.Entity("Bfn.DevOps.Models.BoardColumn", b =>
@@ -621,11 +534,6 @@ namespace Bfn.DevOps.Migrations
             modelBuilder.Entity("Bfn.DevOps.Models.Board", b =>
                 {
                     b.Navigation("Columns");
-                });
-
-            modelBuilder.Entity("Bfn.DevOps.Models.BoardCard", b =>
-                {
-                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("Bfn.DevOps.Models.BoardColumn", b =>

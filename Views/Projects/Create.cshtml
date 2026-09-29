@@ -1,0 +1,22 @@
+@model ProjectEditViewModel
+@{ ViewData["Title"] = "Yeni Proje"; }
+<div class="mx-auto max-w-xl">
+    <div class="card bg-base-100 shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title">Yeni proje</h2>
+            <p class="text-base-content/60">Başlangıçta sadece proje adı yeterli. IIS ve Application Pool adları otomatik atanır.</p>
+            <form method="post" class="mt-2">
+                <div asp-validation-summary="ModelOnly"></div>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Proje adı</legend>
+                    <input asp-for="Name" class="input w-full" autofocus />
+                    <span asp-validation-for="Name"></span>
+                </fieldset>
+                <div class="flex justify-end gap-2 pt-2">
+                    <a asp-action="Index" class="btn btn-ghost">Vazgeç</a>
+                    <button class="btn btn-primary">Kaydet ve düzenle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
