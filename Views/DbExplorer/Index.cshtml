@@ -1,0 +1,44 @@
+@model DbExplorerViewModel
+@{ ViewData["Title"] = "DB Explorer"; }
+<div class="mb-6"><h2 class="text-2xl font-bold">DB Explorer</h2><p class="text-base-content/60">Veritabanındaki tüm tabloları ve verilerini görüntüleyin</p></div>
+<div class="flex gap-4">
+    <aside class="w-56 shrink-0">
+        <ul class="menu rounded-box border border-base-300 bg-base-100 p-1 text-[13px]">
+            @foreach (var table in Model.Tables) {
+                <li>
+                    <a asp-action="Index" asp-route-table="@table.Name" class="flex items-center justify-between gap-2 @(table.Name == Model.SelectedTable ? "active" : "")">
+                        <span class="truncate">@table.Name</span>
+                        <span class="badge badge-ghost badge-sm">@table.RowCount</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </aside>
+    <div class="min-w-0 flex-1">
+        @if (Model.SelectedTable is null) {
+            <div class="text-base-content/60">Görüntülenecek tablo bulunamadı.</div>
+        } else {
+            <div class="mb-3 flex items-center justify-between">
+                <h3 class="font-semibold">@Model.SelectedTable <span class="text-base-content/50">(@Model.TotalRowCount kayıt)</span></h3>
+            </div>
+            <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+                <table class="table table-sm">
+                    <thead><tr>@foreach (var col in Model.Columns) { <th class="whitespace-nowrap">@col</th> }</tr></thead>
+                    <tbody>
+                    @foreach (var row in Model.Rows) {
+                        <tr>@foreach (var value in row) { <td class="max-w-80 truncate whitespace-nowrap" title="@value">@if (value is null) { <span class="text-base-content/30">NULL</span> } else { @value }</td> }</tr>
+                    }
+                    @if (Model.Rows.Count == 0) { <tr><td colspan="@Math.Max(1, Model.Columns.Count)" class="text-center text-base-content/50">Kayıt yok</td></tr> }
+                    </tbody>
+                </table>
+            </div>
+            @if (Model.PageCount > 1) {
+                <div class="join mt-4">
+                    @for (var p = 1; p <= Model.PageCount; p++) {
+                        <a asp-action="Index" asp-route-table="@Model.SelectedTable" asp-route-page="@p" class="join-item btn btn-sm @(p == Model.Page ? "btn-active" : "")">@p</a>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>
