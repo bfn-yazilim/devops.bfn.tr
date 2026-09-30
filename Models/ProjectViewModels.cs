@@ -5,6 +5,7 @@ namespace Bfn.DevOps.Models;
 public sealed class ProjectEditViewModel
 {
     public int Id { get; set; }
+    public Guid UId { get; set; }
     [Required, MaxLength(100), Display(Name = "Proje adı")] public string Name { get; set; } = "";
     [MaxLength(200), Display(Name = "URL / host adı")] public string? Url { get; set; }
     [Required, MaxLength(100), Display(Name = "IIS site adı")] public string IisSiteName { get; set; } = "";
@@ -18,6 +19,7 @@ public sealed class DeploymentStepEditViewModel
 {
     public int Id { get; set; }
     public int ProjectId { get; set; }
+    public Guid ProjectUId { get; set; }
     [Required, MaxLength(120), Display(Name = "Adım adı")] public string Name { get; set; } = "";
     [Display(Name = "Adım türü")] public DeploymentStepType Type { get; set; }
     [Range(5, 7200), Display(Name = "Zaman aşımı (sn)")] public int TimeoutSeconds { get; set; } = 600;

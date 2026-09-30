@@ -2,7 +2,35 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bfn.DevOps.Models;
 
-public sealed class DevOpsProject
+public interface IAuditable
+{
+    Guid UId { get; set; }
+    string? CreUser { get; set; }
+    DateTime CreDate { get; set; }
+    string? ModUser { get; set; }
+    DateTime? ModDate { get; set; }
+    string? DelUser { get; set; }
+    DateTime? DelDate { get; set; }
+    string? Client { get; set; }
+    string? ClientIp { get; set; }
+    bool IsDeleted { get; set; }
+}
+
+public abstract class AuditableEntity : IAuditable
+{
+    public Guid UId { get; set; } = Guid.NewGuid();
+    [MaxLength(450)] public string? CreUser { get; set; }
+    public DateTime CreDate { get; set; } = DateTime.UtcNow;
+    [MaxLength(450)] public string? ModUser { get; set; }
+    public DateTime? ModDate { get; set; }
+    [MaxLength(450)] public string? DelUser { get; set; }
+    public DateTime? DelDate { get; set; }
+    [MaxLength(50)] public string? Client { get; set; }
+    [MaxLength(50)] public string? ClientIp { get; set; }
+    public bool IsDeleted { get; set; }
+}
+
+public sealed class DevOpsProject : AuditableEntity
 {
     public int Id { get; set; }
     [Required, MaxLength(100)] public string Name { get; set; } = "";
@@ -12,8 +40,6 @@ public sealed class DevOpsProject
     [MaxLength(500)] public string? RepositoryUrl { get; set; }
     [MaxLength(500)] public string? WorkingDirectory { get; set; }
     public bool ZeroDowntimeEnabled { get; set; } = true;
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
     public List<DeploymentStep> DeploymentSteps { get; set; } = [];
 }
 
@@ -24,7 +50,7 @@ public enum DeploymentStepType
     HealthCheck, PowerShell
 }
 
-public sealed class DeploymentStep
+public sealed class DeploymentStep : AuditableEntity
 {
     public int Id { get; set; }
     public int ProjectId { get; set; }
@@ -38,7 +64,7 @@ public sealed class DeploymentStep
     public string SettingsJson { get; set; } = "{}";
 }
 
-public sealed class Board
+public sealed class Board : AuditableEntity
 {
     public int Id { get; set; }
     [Required, MaxLength(100)] public string Name { get; set; } = "Genel";
@@ -46,7 +72,7 @@ public sealed class Board
     public List<BoardColumn> Columns { get; set; } = [];
 }
 
-public sealed class BoardColumn
+public sealed class BoardColumn : AuditableEntity
 {
     public int Id { get; set; }
     public int BoardId { get; set; }
@@ -58,7 +84,7 @@ public sealed class BoardColumn
 
 public enum CardPriority { Unspecified, Low, Medium, High, Urgent }
 
-public sealed class BoardCard
+public sealed class BoardCard : AuditableEntity
 {
     public int Id { get; set; }
     public int BoardColumnId { get; set; }
@@ -66,8 +92,6 @@ public sealed class BoardCard
     [Required, MaxLength(200)] public string Title { get; set; } = "";
     [MaxLength(4000)] public string? Description { get; set; }
     public int SortOrder { get; set; }
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
     [MaxLength(450)] public string? AssignedAgentId { get; set; }
     [MaxLength(450)] public string? AssignedUserId { get; set; }
     public ApplicationUser? AssignedUser { get; set; }
@@ -76,11 +100,10 @@ public sealed class BoardCard
     public CardPriority Priority { get; set; } = CardPriority.Unspecified;
     public DateTime? DueAtUtc { get; set; }
     [MaxLength(300)] public string? Tags { get; set; }
-    public bool IsArchived { get; set; }
     public List<BoardCardComment> Comments { get; set; } = [];
 }
 
-public sealed class BoardCardComment
+public sealed class BoardCardComment : AuditableEntity
 {
     public int Id { get; set; }
     public int BoardCardId { get; set; }
@@ -88,16 +111,14 @@ public sealed class BoardCardComment
     [MaxLength(450)] public string? AuthorUserId { get; set; }
     public ApplicationUser? Author { get; set; }
     [Required, MaxLength(4000)] public string Body { get; set; } = "";
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }
 
-public sealed class DeploymentRun
+public sealed class DeploymentRun : AuditableEntity
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
     public int ProjectId { get; set; }
     public DevOpsProject Project { get; set; } = null!;
     [MaxLength(40)] public string Status { get; set; } = "Queued";
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime? StartedAtUtc { get; set; }
     public DateTime? FinishedAtUtc { get; set; }
     [MaxLength(450)] public string RequestedByUserId { get; set; } = "";

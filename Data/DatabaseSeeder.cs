@@ -38,7 +38,7 @@ public static class DatabaseSeeder
         var usersOnLegacyDefault = await users.Users.Where(x => x.Theme == "" || x.Theme == "bfnlight").ToListAsync();
         foreach (var existingUser in usersOnLegacyDefault) { existingUser.Theme = "bfnorbi"; await users.UpdateAsync(existingUser); }
         if (await users.Users.AnyAsync()) return;
-        var admin = new ApplicationUser { UserName = "admin", IsFounder = true, MustChangePassword = true, CreatedAtUtc = DateTime.UtcNow };
+        var admin = new ApplicationUser { UserName = "admin", IsFounder = true, MustChangePassword = true };
         var create = await users.CreateAsync(admin);
         if (!create.Succeeded) throw new InvalidOperationException(string.Join("; ", create.Errors.Select(x => x.Description)));
         admin.PasswordHash = users.PasswordHasher.HashPassword(admin, "admin");

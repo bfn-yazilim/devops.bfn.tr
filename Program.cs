@@ -24,6 +24,7 @@ public class Program
             options.Password.RequireNonAlphanumeric = true;
             options.Lockout.MaxFailedAccessAttempts = 5;
         }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+        builder.Services.AddScoped<IUserStore<ApplicationUser>, ApplicationUserStore>();
         builder.Services.ConfigureApplicationCookie(options =>
         {
             options.LoginPath = "/Account/Login";

@@ -3,7 +3,7 @@
 <div class="mx-auto max-w-2xl">
     <form method="post" class="card bg-base-100 shadow-sm">
         <div class="card-body space-y-1">
-            <input asp-for="Id" type="hidden" /><input asp-for="ProjectId" type="hidden" />
+            <input asp-for="Id" type="hidden" /><input asp-for="ProjectId" type="hidden" /><input asp-for="ProjectUId" type="hidden" />
             <div asp-validation-summary="ModelOnly"></div>
             <fieldset class="fieldset">
                 <legend class="fieldset-legend">Adım adı</legend>
@@ -45,7 +45,7 @@
                 <label class="label cursor-pointer gap-2"><input asp-for="ContinueOnError" class="checkbox" /> Hatada devam et</label>
             </div>
             <div class="card-actions justify-end pt-2">
-                <a asp-action="Steps" asp-route-id="@Model.ProjectId" class="btn btn-ghost">Vazgeç</a>
+                <a asp-action="Steps" asp-route-id="@Model.ProjectUId" class="btn btn-ghost">Vazgeç</a>
                 <button class="btn btn-primary">Kaydet</button>
             </div>
         </div>

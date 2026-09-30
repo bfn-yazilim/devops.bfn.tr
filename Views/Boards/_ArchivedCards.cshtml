@@ -9,7 +9,7 @@
         <div class="flex items-center justify-between gap-3 rounded-md border border-base-300 p-3">
             <div class="min-w-0">
                 <p class="truncate text-[13px] font-medium">@card.Title</p>
-                <p class="text-xs text-base-content/50">@card.Column.Name · @card.UpdatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+                <p class="text-xs text-base-content/50">@card.Column.Name · @((card.ModDate ?? card.CreDate).ToLocalTime().ToString("dd.MM.yyyy HH:mm"))</p>
             </div>
             <div class="flex shrink-0 gap-2">
                 <form asp-controller="Boards" asp-action="RestoreCard" asp-route-id="@card.Id" method="post"><button class="btn btn-ghost btn-xs">Geri al</button></form>

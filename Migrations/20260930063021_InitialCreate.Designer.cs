@@ -3,6 +3,7 @@ using System;
 using Bfn.DevOps.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bfn.DevOps.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260930063021_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.21");
@@ -30,12 +33,12 @@ namespace Bfn.DevOps.Migrations
                     b.Property<string>("Client")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1007);
+                        .HasColumnOrder(1006);
 
                     b.Property<string>("ClientIp")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1008);
+                        .HasColumnOrder(1007);
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -45,22 +48,28 @@ namespace Bfn.DevOps.Migrations
                     b.Property<DateTime>("CreDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1002)
+                        .HasColumnOrder(1001)
                         .HasDefaultValueSql("'1970-01-01 00:00:00'");
 
                     b.Property<string>("CreUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1001);
+                        .HasColumnOrder(1000);
 
                     b.Property<DateTime?>("DelDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1006);
+                        .HasColumnOrder(1005);
 
                     b.Property<string>("DelUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1005);
+                        .HasColumnOrder(1004);
+
+                    b.Property<bool>("Deleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false)
+                        .HasColumnOrder(1008);
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -70,12 +79,6 @@ namespace Bfn.DevOps.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(4);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(false)
-                        .HasColumnOrder(1009);
 
                     b.Property<bool>("IsFounder")
                         .HasColumnType("INTEGER")
@@ -91,12 +94,12 @@ namespace Bfn.DevOps.Migrations
 
                     b.Property<DateTime?>("ModDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1004);
+                        .HasColumnOrder(1003);
 
                     b.Property<string>("ModUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1003);
+                        .HasColumnOrder(1002);
 
                     b.Property<bool>("MustChangePassword")
                         .HasColumnType("INTEGER")
@@ -140,7 +143,7 @@ namespace Bfn.DevOps.Migrations
                     b.Property<Guid>("UId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1000)
+                        .HasColumnOrder(1009)
                         .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
 
                     b.Property<string>("UserName")
@@ -170,47 +173,47 @@ namespace Bfn.DevOps.Migrations
                     b.Property<string>("Client")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1007);
+                        .HasColumnOrder(1006);
 
                     b.Property<string>("ClientIp")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1008);
+                        .HasColumnOrder(1007);
 
                     b.Property<DateTime>("CreDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1002)
+                        .HasColumnOrder(1001)
                         .HasDefaultValueSql("'1970-01-01 00:00:00'");
 
                     b.Property<string>("CreUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1001);
+                        .HasColumnOrder(1000);
 
                     b.Property<DateTime?>("DelDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1006);
+                        .HasColumnOrder(1005);
 
                     b.Property<string>("DelUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1005);
+                        .HasColumnOrder(1004);
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("Deleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(false)
-                        .HasColumnOrder(1009);
+                        .HasColumnOrder(1008);
 
                     b.Property<DateTime?>("ModDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1004);
+                        .HasColumnOrder(1003);
 
                     b.Property<string>("ModUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1003);
+                        .HasColumnOrder(1002);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -225,7 +228,7 @@ namespace Bfn.DevOps.Migrations
                     b.Property<Guid>("UId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1000)
+                        .HasColumnOrder(1009)
                         .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
 
                     b.HasKey("Id");
@@ -257,23 +260,23 @@ namespace Bfn.DevOps.Migrations
                     b.Property<string>("Client")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1007);
+                        .HasColumnOrder(1006);
 
                     b.Property<string>("ClientIp")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1008);
+                        .HasColumnOrder(1007);
 
                     b.Property<DateTime>("CreDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1002)
+                        .HasColumnOrder(1001)
                         .HasDefaultValueSql("'1970-01-01 00:00:00'");
 
                     b.Property<string>("CreUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1001);
+                        .HasColumnOrder(1000);
 
                     b.Property<string>("CreatedByUserId")
                         .HasMaxLength(450)
@@ -282,12 +285,18 @@ namespace Bfn.DevOps.Migrations
 
                     b.Property<DateTime?>("DelDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1006);
+                        .HasColumnOrder(1005);
 
                     b.Property<string>("DelUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1005);
+                        .HasColumnOrder(1004);
+
+                    b.Property<bool>("Deleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false)
+                        .HasColumnOrder(1008);
 
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
@@ -298,20 +307,14 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnOrder(6);
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(false)
-                        .HasColumnOrder(1009);
-
                     b.Property<DateTime?>("ModDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1004);
+                        .HasColumnOrder(1003);
 
                     b.Property<string>("ModUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1003);
+                        .HasColumnOrder(1002);
 
                     b.Property<string>("Priority")
                         .IsRequired()
@@ -338,7 +341,7 @@ namespace Bfn.DevOps.Migrations
                     b.Property<Guid>("UId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1000)
+                        .HasColumnOrder(1009)
                         .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
 
                     b.HasKey("Id");
@@ -381,52 +384,52 @@ namespace Bfn.DevOps.Migrations
                     b.Property<string>("Client")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1007);
+                        .HasColumnOrder(1006);
 
                     b.Property<string>("ClientIp")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1008);
+                        .HasColumnOrder(1007);
 
                     b.Property<DateTime>("CreDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1002)
+                        .HasColumnOrder(1001)
                         .HasDefaultValueSql("'1970-01-01 00:00:00'");
 
                     b.Property<string>("CreUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1001);
+                        .HasColumnOrder(1000);
 
                     b.Property<DateTime?>("DelDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1006);
+                        .HasColumnOrder(1005);
 
                     b.Property<string>("DelUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1005);
+                        .HasColumnOrder(1004);
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("Deleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(false)
-                        .HasColumnOrder(1009);
+                        .HasColumnOrder(1008);
 
                     b.Property<DateTime?>("ModDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1004);
+                        .HasColumnOrder(1003);
 
                     b.Property<string>("ModUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1003);
+                        .HasColumnOrder(1002);
 
                     b.Property<Guid>("UId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1000)
+                        .HasColumnOrder(1009)
                         .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
 
                     b.HasKey("Id");
@@ -452,47 +455,47 @@ namespace Bfn.DevOps.Migrations
                     b.Property<string>("Client")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1007);
+                        .HasColumnOrder(1006);
 
                     b.Property<string>("ClientIp")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1008);
+                        .HasColumnOrder(1007);
 
                     b.Property<DateTime>("CreDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1002)
+                        .HasColumnOrder(1001)
                         .HasDefaultValueSql("'1970-01-01 00:00:00'");
 
                     b.Property<string>("CreUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1001);
+                        .HasColumnOrder(1000);
 
                     b.Property<DateTime?>("DelDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1006);
+                        .HasColumnOrder(1005);
 
                     b.Property<string>("DelUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1005);
+                        .HasColumnOrder(1004);
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("Deleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(false)
-                        .HasColumnOrder(1009);
+                        .HasColumnOrder(1008);
 
                     b.Property<DateTime?>("ModDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1004);
+                        .HasColumnOrder(1003);
 
                     b.Property<string>("ModUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1003);
+                        .HasColumnOrder(1002);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -507,7 +510,7 @@ namespace Bfn.DevOps.Migrations
                     b.Property<Guid>("UId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1000)
+                        .HasColumnOrder(1009)
                         .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
 
                     b.HasKey("Id");
@@ -527,42 +530,42 @@ namespace Bfn.DevOps.Migrations
                     b.Property<string>("Client")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1007);
+                        .HasColumnOrder(1006);
 
                     b.Property<string>("ClientIp")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1008);
+                        .HasColumnOrder(1007);
 
                     b.Property<DateTime>("CreDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1002)
+                        .HasColumnOrder(1001)
                         .HasDefaultValueSql("'1970-01-01 00:00:00'");
 
                     b.Property<string>("CreUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1001);
+                        .HasColumnOrder(1000);
 
                     b.Property<DateTime?>("DelDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1006);
+                        .HasColumnOrder(1005);
 
                     b.Property<string>("DelUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1005);
+                        .HasColumnOrder(1004);
+
+                    b.Property<bool>("Deleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false)
+                        .HasColumnOrder(1008);
 
                     b.Property<DateTime?>("FinishedAtUtc")
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1);
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(false)
-                        .HasColumnOrder(1009);
 
                     b.Property<string>("Log")
                         .IsRequired()
@@ -571,12 +574,12 @@ namespace Bfn.DevOps.Migrations
 
                     b.Property<DateTime?>("ModDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1004);
+                        .HasColumnOrder(1003);
 
                     b.Property<string>("ModUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1003);
+                        .HasColumnOrder(1002);
 
                     b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER")
@@ -601,7 +604,7 @@ namespace Bfn.DevOps.Migrations
                     b.Property<Guid>("UId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1000)
+                        .HasColumnOrder(1009)
                         .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
 
                     b.HasKey("Id");
@@ -621,12 +624,12 @@ namespace Bfn.DevOps.Migrations
                     b.Property<string>("Client")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1007);
+                        .HasColumnOrder(1006);
 
                     b.Property<string>("ClientIp")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1008);
+                        .HasColumnOrder(1007);
 
                     b.Property<bool>("ContinueOnError")
                         .HasColumnType("INTEGER")
@@ -635,28 +638,28 @@ namespace Bfn.DevOps.Migrations
                     b.Property<DateTime>("CreDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1002)
+                        .HasColumnOrder(1001)
                         .HasDefaultValueSql("'1970-01-01 00:00:00'");
 
                     b.Property<string>("CreUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1001);
+                        .HasColumnOrder(1000);
 
                     b.Property<DateTime?>("DelDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1006);
+                        .HasColumnOrder(1005);
 
                     b.Property<string>("DelUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1005);
+                        .HasColumnOrder(1004);
 
-                    b.Property<bool>("IsDeleted")
+                    b.Property<bool>("Deleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER")
                         .HasDefaultValue(false)
-                        .HasColumnOrder(1009);
+                        .HasColumnOrder(1008);
 
                     b.Property<bool>("IsEnabled")
                         .HasColumnType("INTEGER")
@@ -664,12 +667,12 @@ namespace Bfn.DevOps.Migrations
 
                     b.Property<DateTime?>("ModDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1004);
+                        .HasColumnOrder(1003);
 
                     b.Property<string>("ModUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1003);
+                        .HasColumnOrder(1002);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -702,7 +705,7 @@ namespace Bfn.DevOps.Migrations
                     b.Property<Guid>("UId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1000)
+                        .HasColumnOrder(1009)
                         .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
 
                     b.HasKey("Id");
@@ -728,32 +731,38 @@ namespace Bfn.DevOps.Migrations
                     b.Property<string>("Client")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1007);
+                        .HasColumnOrder(1006);
 
                     b.Property<string>("ClientIp")
                         .HasMaxLength(50)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1008);
+                        .HasColumnOrder(1007);
 
                     b.Property<DateTime>("CreDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1002)
+                        .HasColumnOrder(1001)
                         .HasDefaultValueSql("'1970-01-01 00:00:00'");
 
                     b.Property<string>("CreUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1001);
+                        .HasColumnOrder(1000);
 
                     b.Property<DateTime?>("DelDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1006);
+                        .HasColumnOrder(1005);
 
                     b.Property<string>("DelUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1005);
+                        .HasColumnOrder(1004);
+
+                    b.Property<bool>("Deleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false)
+                        .HasColumnOrder(1008);
 
                     b.Property<string>("IisSiteName")
                         .IsRequired()
@@ -761,20 +770,14 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnOrder(2);
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER")
-                        .HasDefaultValue(false)
-                        .HasColumnOrder(1009);
-
                     b.Property<DateTime?>("ModDate")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1004);
+                        .HasColumnOrder(1003);
 
                     b.Property<string>("ModUser")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1003);
+                        .HasColumnOrder(1002);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -790,7 +793,7 @@ namespace Bfn.DevOps.Migrations
                     b.Property<Guid>("UId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(1000)
+                        .HasColumnOrder(1009)
                         .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
 
                     b.Property<string>("Url")

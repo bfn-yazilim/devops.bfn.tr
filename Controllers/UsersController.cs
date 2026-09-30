@@ -17,7 +17,7 @@ public sealed class UsersController(UserManager<ApplicationUser> users) : Contro
     public async Task<IActionResult> Create(CreateUserViewModel model)
     {
         if (!ModelState.IsValid) return View(model);
-        var user = new ApplicationUser { UserName = model.UserName.Trim(), MustChangePassword = true, CreatedAtUtc = DateTime.UtcNow };
+        var user = new ApplicationUser { UserName = model.UserName.Trim(), MustChangePassword = true };
         var result = await users.CreateAsync(user, model.Password);
         if (result.Succeeded && model.IsAdministrator) result = await users.AddToRoleAsync(user, DatabaseSeeder.AdministratorRole);
         if (result.Succeeded) { TempData["Message"] = "Kullanıcı oluşturuldu."; return RedirectToAction(nameof(Index)); }

@@ -46,7 +46,7 @@
         <div class="rounded-md bg-base-200 p-3 text-[13px]">
             <div class="mb-1 flex items-center justify-between text-xs text-base-content/50">
                 <span class="font-semibold text-base-content/70">@(c.Author?.UserName ?? "Silinmiş kullanıcı")</span>
-                <span>@c.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                <span>@c.CreDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
             </div>
             <p class="whitespace-pre-wrap">@c.Body</p>
         </div>

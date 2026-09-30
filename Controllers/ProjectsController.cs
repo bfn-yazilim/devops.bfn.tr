@@ -26,14 +26,14 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
         var project = new DevOpsProject { Name = name, IisSiteName = name, ApplicationPoolName = name, ZeroDowntimeEnabled = true };
         db.Projects.Add(project);
         await db.SaveChangesAsync();
-        return RedirectToAction(nameof(Edit), new { id = project.Id });
+        return RedirectToAction(nameof(Edit), new { id = project.UId });
     }
 
-    public async Task<IActionResult> Edit(int id)
+    public async Task<IActionResult> Edit(Guid id)
     {
-        var p = await db.Projects.FindAsync(id);
+        var p = await db.Projects.FirstOrDefaultAsync(x => x.UId == id);
         if (p is null) return NotFound();
-        return View(new ProjectEditViewModel { Id = p.Id, Name = p.Name, Url = p.Url, IisSiteName = p.IisSiteName, ApplicationPoolName = p.ApplicationPoolName, RepositoryUrl = p.RepositoryUrl, WorkingDirectory = p.WorkingDirectory, ZeroDowntimeEnabled = p.ZeroDowntimeEnabled });
+        return View(new ProjectEditViewModel { Id = p.Id, UId = p.UId, Name = p.Name, Url = p.Url, IisSiteName = p.IisSiteName, ApplicationPoolName = p.ApplicationPoolName, RepositoryUrl = p.RepositoryUrl, WorkingDirectory = p.WorkingDirectory, ZeroDowntimeEnabled = p.ZeroDowntimeEnabled });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -45,14 +45,14 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
         if (await db.Projects.AnyAsync(x => x.Id != model.Id && x.Name == model.Name.Trim())) { ModelState.AddModelError(nameof(model.Name), "Bu proje adı zaten kullanılıyor."); return View(model); }
         p.Name = model.Name.Trim(); p.Url = model.Url?.Trim(); p.IisSiteName = model.IisSiteName.Trim();
         p.ApplicationPoolName = model.ApplicationPoolName.Trim(); p.RepositoryUrl = model.RepositoryUrl?.Trim();
-        p.WorkingDirectory = model.WorkingDirectory?.Trim(); p.ZeroDowntimeEnabled = model.ZeroDowntimeEnabled; p.UpdatedAtUtc = DateTime.UtcNow;
+        p.WorkingDirectory = model.WorkingDirectory?.Trim(); p.ZeroDowntimeEnabled = model.ZeroDowntimeEnabled; p.ModDate = DateTime.UtcNow;
         await db.SaveChangesAsync(); TempData["Message"] = "Proje güncellendi.";
-        return RedirectToAction(nameof(Edit), new { id = p.Id });
+        return RedirectToAction(nameof(Edit), new { id = p.UId });
     }
 
-    public async Task<IActionResult> Steps(int id)
+    public async Task<IActionResult> Steps(Guid id)
     {
-        var project = await db.Projects.Include(x => x.DeploymentSteps.OrderBy(s => s.SortOrder)).FirstOrDefaultAsync(x => x.Id == id);
+        var project = await db.Projects.Include(x => x.DeploymentSteps.OrderBy(s => s.SortOrder)).FirstOrDefaultAsync(x => x.UId == id);
         return project is null ? NotFound() : View(project);
     }
 
@@ -62,16 +62,17 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
         var project = await db.Projects.FindAsync(id); if (project is null) return NotFound();
         try { iis.ApplyProject(project); TempData["Message"] = "IIS sitesi ve Application Pool ayarları uygulandı."; }
         catch (Exception ex) { TempData["Error"] = ex.Message; }
-        return RedirectToAction(nameof(Edit), new { id });
+        return RedirectToAction(nameof(Edit), new { id = project.UId });
     }
 
-    public async Task<IActionResult> StepEdit(int projectId, int? id)
+    public async Task<IActionResult> StepEdit(Guid projectId, Guid? id)
     {
-        if (!await db.Projects.AnyAsync(x => x.Id == projectId)) return NotFound();
-        if (id is null) return View(new DeploymentStepEditViewModel { ProjectId = projectId });
-        var step = await db.DeploymentSteps.FirstOrDefaultAsync(x => x.Id == id && x.ProjectId == projectId);
+        var project = await db.Projects.FirstOrDefaultAsync(x => x.UId == projectId);
+        if (project is null) return NotFound();
+        if (id is null) return View(new DeploymentStepEditViewModel { ProjectId = project.Id, ProjectUId = project.UId });
+        var step = await db.DeploymentSteps.FirstOrDefaultAsync(x => x.UId == id && x.ProjectId == project.Id);
         if (step is null) return NotFound();
-        var model = new DeploymentStepEditViewModel { Id = step.Id, ProjectId = step.ProjectId, Name = step.Name, Type = step.Type, TimeoutSeconds = step.TimeoutSeconds, IsEnabled = step.IsEnabled, ContinueOnError = step.ContinueOnError, SettingsJson = step.SettingsJson };
+        var model = new DeploymentStepEditViewModel { Id = step.Id, ProjectId = step.ProjectId, ProjectUId = project.UId, Name = step.Name, Type = step.Type, TimeoutSeconds = step.TimeoutSeconds, IsEnabled = step.IsEnabled, ContinueOnError = step.ContinueOnError, SettingsJson = step.SettingsJson };
         if (step.Type == DeploymentStepType.GitClone)
         {
             var git = JsonSerializer.Deserialize<GitCloneSettings>(step.SettingsJson) ?? new GitCloneSettings();
@@ -99,14 +100,14 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
         }
         else { step = await db.DeploymentSteps.FirstOrDefaultAsync(x => x.Id == model.Id && x.ProjectId == model.ProjectId) ?? throw new InvalidOperationException("Adım bulunamadı."); }
         step.Name = model.Name.Trim(); step.Type = model.Type; step.TimeoutSeconds = model.TimeoutSeconds; step.IsEnabled = model.IsEnabled; step.ContinueOnError = model.ContinueOnError; step.SettingsJson = model.SettingsJson;
-        await db.SaveChangesAsync(); return RedirectToAction(nameof(Steps), new { id = model.ProjectId });
+        await db.SaveChangesAsync(); return RedirectToAction(nameof(Steps), new { id = model.ProjectUId });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteStep(int id)
     {
-        var step = await db.DeploymentSteps.FindAsync(id); if (step is null) return NotFound();
-        var projectId = step.ProjectId; db.Remove(step); await db.SaveChangesAsync(); return RedirectToAction(nameof(Steps), new { id = projectId });
+        var step = await db.DeploymentSteps.Include(x => x.Project).FirstOrDefaultAsync(x => x.Id == id); if (step is null) return NotFound();
+        var projectUId = step.Project.UId; db.Remove(step); await db.SaveChangesAsync(); return RedirectToAction(nameof(Steps), new { id = projectUId });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
