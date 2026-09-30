@@ -1,0 +1,48 @@
+@model List<ProjectListItemViewModel>
+@{ ViewData["Title"] = "Güncelleme"; }
+<div class="mb-6"><h2 class="text-2xl font-bold">Güncelleme</h2><p class="text-base-content/60">Projelerin yayın durumunu ve son güncelleme zamanını takip edin.</p></div>
+@if(TempData["Error"] is string err){<div class="alert alert-error mb-4"><span>@err</span></div>}
+@if(Model.Count==0){
+<div class="hero rounded-box border border-dashed border-base-300 bg-base-100 py-16"><div class="text-center"><h3 class="text-xl font-semibold">Henüz proje yok</h3><p class="my-2 text-base-content/60">Önce Projeler sayfasından bir proje oluşturun.</p><a asp-controller="Projects" asp-action="Create" class="btn btn-primary mt-3">Proje oluştur</a></div></div>
+} else {
+<div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+<table class="table">
+    <thead><tr><th class="w-10"></th><th>Proje adı</th><th>Ortam</th><th>Son güncelleme</th><th class="w-16 text-right">Güncelle</th></tr></thead>
+    <tbody>
+    @foreach(var item in Model){
+        var p = item.Project; var run = item.LatestRun; var isRunning = run?.Status == "Running";
+        var lastUpdate = run?.FinishedAtUtc ?? p.ModDate ?? p.CreDate;
+        <tr class="@(isRunning ? "run-row" : "")" data-run-id="@run?.Id">
+            <td>
+                @if (isRunning) { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="size-5 animate-spin text-primary"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"/><path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> }
+                else if (run?.Status == "Succeeded") { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5 text-success"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> }
+                else if (run?.Status == "Failed") { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5 text-error"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg> }
+                else { <span class="text-base-content/30">—</span> }
+            </td>
+            <td>
+                <a asp-action="Detail" asp-route-id="@p.UId" class="font-semibold hover:underline">@p.Name</a>
+                <div class="text-xs text-base-content/50">@(p.Url ?? "URL henüz ayarlanmadı")</div>
+            </td>
+            <td><span class="badge badge-sm @ProjectEnvironmentDisplay.BadgeClass(p.Environment)">@ProjectEnvironmentDisplay.Label(p.Environment)</span></td>
+            <td class="run-status text-sm text-base-content/60">@(isRunning ? "Çalışıyor…" : lastUpdate.ToLocalTime().ToString("dd.MM.yyyy HH:mm"))</td>
+            <td class="text-right">
+                <form asp-action="StartDeployment" asp-route-id="@p.UId" method="post">
+                    <button type="submit" class="btn btn-primary btn-square btn-sm" aria-label="Güncellemeyi başlat" @(isRunning ? "disabled" : "")>
+                        @if (isRunning) { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="size-4 animate-spin"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"/><path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> }
+                        else { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" /></svg> }
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+</div>
+}
+@section Scripts {
+<script>
+(function () {
+    if (document.querySelector('.run-row')) setTimeout(() => location.reload(), 3000);
+})();
+</script>
+}

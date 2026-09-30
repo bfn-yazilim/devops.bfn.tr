@@ -25,6 +25,7 @@ public class Program
             options.Lockout.MaxFailedAccessAttempts = 5;
         }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
         builder.Services.AddScoped<IUserStore<ApplicationUser>, ApplicationUserStore>();
+        builder.Services.AddScoped<IRoleStore<IdentityRole>, ApplicationRoleStore>();
         builder.Services.ConfigureApplicationCookie(options =>
         {
             options.LoginPath = "/Account/Login";
@@ -35,6 +36,7 @@ public class Program
         });
         builder.Services.Configure<IisOptions>(builder.Configuration.GetSection("Iis"));
         builder.Services.AddScoped<IIisService, IisService>();
+        builder.Services.AddSingleton<IDeploymentRunner, DeploymentRunnerService>();
         builder.Services.AddControllersWithViews();
         builder.Services.Configure<Microsoft.AspNetCore.Routing.RouteOptions>(options =>
         {

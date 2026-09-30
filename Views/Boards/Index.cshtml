@@ -1,15 +1,15 @@
 @model Board
 @{ ViewData["Title"] = "Panolar"; }
 @Html.AntiForgeryToken()
-<div class="mb-6 flex items-center justify-between"><div><div class="text-sm font-semibold uppercase tracking-wider text-primary">Pano</div><h2 class="text-3xl font-bold">@Model.Name</h2></div><div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="window.openArchivedCards(@Model.Id)">Arşivlenenler (@ViewData["ArchivedCount"])</button><button class="btn btn-primary btn-sm" onclick="add_column.showModal()">+ Kolon</button></div></div>
-<div class="board-columns flex min-h-[65vh] gap-4 overflow-x-auto pb-5" data-board-id="@Model.Id">
-@foreach(var column in Model.Columns){<section draggable="true" data-column-id="@column.Id" class="board-column min-w-64 flex-1 rounded-box bg-[color-mix(in_oklab,var(--color-base-300),black_10%)] p-3"><div class="mb-3 flex cursor-grab items-center justify-between px-1"><h3 class="text-[13px] font-semibold">@column.Name</h3><div class="flex items-center gap-1"><span class="badge badge-ghost badge-sm">@column.Cards.Count</span><div class="dropdown dropdown-end" onclick="event.stopPropagation()"><button tabindex="0" type="button" class="btn btn-square btn-ghost btn-xs text-base-content/40" aria-label="Kolon menüsü">⋮</button><ul tabindex="0" class="menu dropdown-content z-30 w-48 rounded-box border border-base-300 bg-base-100 p-1 text-[13px] shadow-xl"><li><button type="button" onclick="rename_column_@(column.Id).showModal()">Adını değiştir</button></li><li><form asp-action="DeleteColumn" asp-route-id="@column.Id" method="post" class="contents" onsubmit="return confirm('Bu kolon ve içindeki tüm kartlar silinecek. Emin misiniz?')"><button type="submit" class="w-full text-left text-error">Kolonu sil</button></form></li></ul></div></div></div><div class="card-list min-h-20 space-y-3" data-column-id="@column.Id">
+<div class="mb-8 flex items-center justify-between"><h2 class="text-2xl font-bold">@Model.Name</h2><div class="flex gap-2"><button class="btn btn-ghost btn-sm" onclick="window.openArchivedCards(@Model.Id)">Arşivlenenler (@ViewData["ArchivedCount"])</button><button class="btn btn-primary btn-sm" onclick="add_column.showModal()">+ Kolon</button></div></div>
+<div class="board-columns flex min-h-[65vh] items-start gap-8 overflow-x-auto pb-5" data-board-id="@Model.Id">
+@foreach(var column in Model.Columns){<section draggable="true" data-column-id="@column.Id" class="board-column w-72 shrink-0"><div class="mb-4 flex cursor-grab items-center justify-between px-0.5"><h3 class="text-xs font-bold tracking-wider text-base-content/50 uppercase">@column.Name</h3><div class="flex items-center gap-1"><span class="text-xs text-base-content/40">@column.Cards.Count</span><div class="dropdown dropdown-end" onclick="event.stopPropagation()"><button tabindex="0" type="button" class="btn btn-square btn-ghost btn-xs text-base-content/40" aria-label="Kolon menüsü">⋮</button><ul tabindex="0" class="menu dropdown-content z-30 w-48 rounded-box border border-base-300 bg-base-100 p-1 text-[13px] shadow-xl"><li><button type="button" onclick="rename_column_@(column.Id).showModal()">Adını değiştir</button></li><li><form asp-action="DeleteColumn" asp-route-id="@column.Id" method="post" class="contents" onsubmit="return confirm('Bu kolon ve içindeki tüm kartlar silinecek. Emin misiniz?')"><button type="submit" class="w-full text-left text-error">Kolonu sil</button></form></li></ul></div></div></div><div class="card-list min-h-16 space-y-3" data-column-id="@column.Id">
 @foreach(var card in column.Cards){
-<article draggable="true" data-card-id="@card.Id" class="board-card card cursor-pointer border border-base-300 bg-base-100 shadow-sm" onclick="window.openCardDetail(@card.Id)">
-    <div class="card-body gap-2 p-4">
-        <div class="flex items-start justify-between gap-2">
-            <h4 class="text-[13px] font-medium">@card.Title</h4>
-            <div class="dropdown dropdown-end" onclick="event.stopPropagation()">
+<article draggable="true" data-card-id="@card.Id" class="board-card card cursor-pointer rounded-2xl border border-base-300 bg-base-100 shadow-sm transition-transform hover:shadow-md">
+    <div class="card-body gap-3 p-4">
+        <div class="flex items-start justify-between gap-2" onclick="window.openCardDetail(@card.Id)">
+            <h4 class="text-sm font-semibold leading-snug">@card.Title</h4>
+            <div class="dropdown dropdown-end shrink-0" onclick="event.stopPropagation()">
                 <button tabindex="0" type="button" class="btn btn-square btn-ghost btn-xs text-base-content/40" aria-label="Kart menüsü">⋮</button>
                 <ul tabindex="0" class="menu dropdown-content z-30 w-52 rounded-box border border-base-300 bg-base-100 p-1 text-[13px] shadow-xl">
                     <li><button type="button" onclick="window.openCardDetail(@card.Id)">Kartı Aç</button></li>
@@ -19,8 +19,25 @@
                 </ul>
             </div>
         </div>
-        @if(!string.IsNullOrWhiteSpace(card.Description)){<p class="line-clamp-2 text-xs text-base-content/60">@card.Description</p>}
-        @if(!string.IsNullOrWhiteSpace(card.Tags)){<div class="flex flex-wrap gap-1">@foreach(var tag in card.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)){<span class="badge badge-ghost badge-xs">@tag</span>}</div>}
+        @if(!string.IsNullOrWhiteSpace(card.Description)){<p class="line-clamp-2 text-xs text-base-content/60" onclick="window.openCardDetail(@card.Id)">@card.Description</p>}
+        @if(card.Subtasks.Count > 0){
+        <div class="space-y-1.5">
+            <div class="text-[10px] font-semibold uppercase tracking-wide text-base-content/40">Sub tasks</div>
+            @foreach(var sub in card.Subtasks){
+            <label class="flex cursor-pointer items-center gap-2 text-xs" onclick="event.stopPropagation()">
+                <input type="checkbox" class="subtask-toggle checkbox checkbox-xs" data-subtask-id="@sub.Id" @(sub.IsDone ? "checked" : "") />
+                <span class="subtask-label @(sub.IsDone ? "text-base-content/40 line-through" : "text-base-content/80")">@sub.Title</span>
+            </label>
+            }
+        </div>
+        }
+        @if(!string.IsNullOrWhiteSpace(card.Tags)){<div class="flex flex-wrap gap-1">@foreach(var tag in card.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)){<span class="badge @TagColorDisplay.BadgeClass(tag) badge-sm">@tag</span>}</div>}
+        @if(!string.IsNullOrWhiteSpace(card.AttachmentUrl)){
+        <a href="@card.AttachmentUrl" target="_blank" rel="noopener" class="flex items-center gap-1.5 text-xs text-info hover:underline" onclick="event.stopPropagation()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-3.5 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>
+            <span class="truncate">@(string.IsNullOrWhiteSpace(card.AttachmentLabel) ? card.AttachmentUrl : card.AttachmentLabel)</span>
+        </a>
+        }
         <div class="flex items-center justify-between pt-1">
             <div class="flex items-center gap-1.5">
                 @if(card.Priority != CardPriority.Unspecified){<span class="badge @CardPriorityDisplay.BadgeClass(card.Priority) badge-xs">@CardPriorityDisplay.Label(card.Priority)</span>}
@@ -32,9 +49,10 @@
     </div>
 </article>
 }
+@if(column.Cards.Count == 0){<div class="drop-placeholder flex min-h-24 items-center justify-center rounded-2xl border-2 border-dashed border-base-300 text-xs text-base-content/40">Drop here</div>}
 </div>
 <div class="add-card-area mt-3" data-column-id="@column.Id">
-    <button type="button" class="add-card-btn btn btn-ghost btn-sm w-full justify-start text-[13px] text-base-content/60">+ Kart ekle</button>
+    <button type="button" class="add-card-btn btn btn-ghost btn-sm w-full justify-start text-[13px] text-base-content/50">+ Kart ekle</button>
     <form asp-action="AddCard" method="post" class="add-card-form hidden">
         <input name="columnId" value="@column.Id" type="hidden"/>
         <textarea name="title" maxlength="200" required rows="2" class="textarea w-full resize-none bg-base-100 text-[13px] shadow-sm"
@@ -50,7 +68,7 @@
 }
 </div>
 <dialog id="add_column" class="modal"><div class="modal-box"><h3 class="text-lg font-bold">Yeni kolon</h3><form asp-action="AddColumn" method="post" class="mt-4 space-y-4"><input name="boardId" value="@Model.Id" type="hidden"/><input name="name" maxlength="80" required class="input w-full" placeholder="Kolon adı"/><div class="modal-action"><button type="button" class="btn" onclick="add_column.close()">Vazgeç</button><button class="btn btn-primary">Ekle</button></div></form></div></dialog>
-<dialog id="card_detail" class="modal modal-end"><div id="card_detail_content" class="modal-box h-screen max-h-none w-[420px] max-w-full p-0"></div></dialog>
+<dialog id="card_detail" class="modal"><div id="card_detail_panel" class="modal-box relative flex h-[85vh] max-h-[85vh] w-[960px] max-w-[95vw] flex-col overflow-hidden border border-base-300 p-0"><div id="card_detail_resize" class="absolute inset-y-0 right-0 z-10 w-1.5 cursor-col-resize hover:bg-primary/30"></div><div id="card_detail_content" class="flex min-h-0 flex-1 flex-col"></div></div></dialog>
 <dialog id="archived_cards" class="modal"><div id="archived_cards_content" class="modal-box w-[480px] max-w-full p-0"></div></dialog>
 @section Scripts {
 <script>window.setupBoard?.();</script>

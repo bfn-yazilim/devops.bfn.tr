@@ -12,6 +12,12 @@
                     <input asp-for="Name" class="input w-full" autofocus />
                     <span asp-validation-for="Name"></span>
                 </fieldset>
+                <fieldset class="fieldset">
+                    <legend class="fieldset-legend">Ortam</legend>
+                    <select asp-for="Environment" class="select w-full">
+                        @foreach (var env in Enum.GetValues<ProjectEnvironment>()) { <option value="@env" selected="@(env == Model.Environment)">@ProjectEnvironmentDisplay.Label(env)</option> }
+                    </select>
+                </fieldset>
                 <div class="flex justify-end gap-2 pt-2">
                     <a asp-action="Index" class="btn btn-ghost">Vazgeç</a>
                     <button class="btn btn-primary">Kaydet ve düzenle</button>

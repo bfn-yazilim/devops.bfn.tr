@@ -77,6 +77,8 @@ body { min-height: 100vh; font-family: "Archivo Variable", ui-sans-serif, system
 .validation-summary-errors { color: var(--color-error); font-size: .875rem; }
 .field-validation-error { color: var(--color-error); font-size: .75rem; }
 .dragging { opacity: .45; }
+.board-card.dragging { opacity: .35; }
+.board-card-drag-clone { position: absolute; top: -9999px; left: -9999px; transform: rotate(4deg); box-shadow: 0 16px 32px rgb(0 0 0 / .2); pointer-events: none; }
 
 [data-theme="bfnorbi"] body { background: rgb(241 241 241); letter-spacing: -.005em; }
 [data-theme="bfnorbi"] .card { border-color: rgb(220 220 220); box-shadow: 0 1px 2px rgb(0 0 0 / .035); }
@@ -84,6 +86,9 @@ body { min-height: 100vh; font-family: "Archivo Variable", ui-sans-serif, system
 [data-theme="bfnorbi"] .card-title { font-size: .875rem; font-weight: 650; }
 [data-theme="bfnorbi"] .btn { min-height: 2rem; height: 2rem; padding-inline: .75rem; font-size: .75rem; font-weight: 650; }
 [data-theme="bfnorbi"] .btn-sm { min-height: 1.75rem; height: 1.75rem; padding-inline: .5rem; }
+[data-theme="bfnorbi"] .btn-square { width: 2rem; padding-inline: 0; }
+[data-theme="bfnorbi"] .btn-square.btn-sm { width: 1.75rem; }
+[data-theme="bfnorbi"] .btn-square.btn-xs { width: 1.5rem; height: 1.5rem; min-height: 1.5rem; }
 [data-theme="bfnorbi"] .input, [data-theme="bfnorbi"] .select { min-height: 2.25rem; height: 2.25rem; font-size: .8125rem; }
 [data-theme="bfnorbi"] .textarea { font-size: .8125rem; }
 [data-theme="bfnorbi"] .label-text { font-size: .75rem; font-weight: 600; }

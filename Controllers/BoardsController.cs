@@ -24,6 +24,7 @@ public sealed class BoardsController(ApplicationDbContext db, UserManager<Applic
         }
         var board = await db.Boards.AsNoTracking()
             .Include(x => x.Columns.OrderBy(c => c.SortOrder)).ThenInclude(c => c.Cards.Where(cd => !cd.IsDeleted).OrderBy(cd => cd.SortOrder)).ThenInclude(cd => cd.AssignedUser)
+            .Include(x => x.Columns.OrderBy(c => c.SortOrder)).ThenInclude(c => c.Cards.Where(cd => !cd.IsDeleted).OrderBy(cd => cd.SortOrder)).ThenInclude(cd => cd.Subtasks.OrderBy(s => s.SortOrder))
             .FirstOrDefaultAsync(x => x.Id == boardId);
         if (board is null) return NotFound();
         ViewData["OpenCard"] = openCard;
@@ -47,6 +48,7 @@ public sealed class BoardsController(ApplicationDbContext db, UserManager<Applic
             .Include(x => x.Column)
             .Include(x => x.AssignedUser).Include(x => x.CreatedByUser)
             .Include(x => x.Comments.OrderBy(c => c.CreDate)).ThenInclude(c => c.Author)
+            .Include(x => x.Subtasks.OrderBy(s => s.SortOrder))
             .FirstOrDefaultAsync(x => x.Id == id);
         if (card is null) return NotFound();
         var columns = await db.BoardColumns.AsNoTracking().Where(x => x.BoardId == card.Column.BoardId).OrderBy(x => x.SortOrder).ToListAsync();
@@ -134,7 +136,43 @@ public sealed class BoardsController(ApplicationDbContext db, UserManager<Applic
             ? null
             : string.Join(", ", model.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
         card.AssignedUserId = string.IsNullOrWhiteSpace(model.AssignedUserId) ? null : model.AssignedUserId;
+        card.AttachmentUrl = string.IsNullOrWhiteSpace(model.AttachmentUrl) ? null : model.AttachmentUrl.Trim();
+        card.AttachmentLabel = string.IsNullOrWhiteSpace(model.AttachmentLabel) ? null : model.AttachmentLabel.Trim();
         card.ModDate = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+        return RedirectToAction(nameof(Index), new { id = await BoardUIdAsync(card.Column.BoardId), openCard = card.Id });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> AddSubtask(int cardId, string title)
+    {
+        if (string.IsNullOrWhiteSpace(title) || title.Length > 200) return BadRequest();
+        var card = await db.BoardCards.Include(x => x.Column).FirstOrDefaultAsync(x => x.Id == cardId);
+        if (card is null) return NotFound();
+        var order = (await db.BoardCardSubtasks.Where(x => x.BoardCardId == cardId).MaxAsync(x => (int?)x.SortOrder) ?? -1) + 1;
+        db.BoardCardSubtasks.Add(new BoardCardSubtask { BoardCardId = cardId, Title = title.Trim(), SortOrder = order });
+        card.ModDate = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+        return RedirectToAction(nameof(Index), new { id = await BoardUIdAsync(card.Column.BoardId), openCard = card.Id });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleSubtask(int id)
+    {
+        var subtask = await db.BoardCardSubtasks.FirstOrDefaultAsync(x => x.Id == id);
+        if (subtask is null) return NotFound();
+        subtask.IsDone = !subtask.IsDone;
+        await db.SaveChangesAsync();
+        return Ok(new { done = subtask.IsDone });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteSubtask(int id)
+    {
+        var subtask = await db.BoardCardSubtasks.Include(x => x.Card).ThenInclude(c => c.Column).FirstOrDefaultAsync(x => x.Id == id);
+        if (subtask is null) return NotFound();
+        var card = subtask.Card;
+        db.Remove(subtask);
         await db.SaveChangesAsync();
         return RedirectToAction(nameof(Index), new { id = await BoardUIdAsync(card.Column.BoardId), openCard = card.Id });
     }

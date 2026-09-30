@@ -1,59 +1,123 @@
 @model BoardCardDetailViewModel
 @{ var card = Model.Card; }
-<form method="post" asp-controller="Boards" asp-action="UpdateCard">
-    <input type="hidden" name="Id" value="@card.Id" />
-    <div class="flex items-center justify-between border-b border-base-300 px-5 py-3">
-        <select name="BoardColumnId" class="select select-sm select-ghost font-semibold">
-            @foreach (var col in Model.Columns) { <option value="@col.Id" selected="@(col.Id == card.BoardColumnId)">@col.Name</option> }
-        </select>
-        <button type="button" class="btn btn-sm btn-square btn-ghost" onclick="card_detail.close()" aria-label="Kapat">✕</button>
-    </div>
-    <div class="px-5 py-4">
-        <input name="Title" value="@card.Title" class="input input-ghost w-full px-0 text-xl font-bold focus:outline-none" />
-
-        <div class="mt-4 grid grid-cols-[110px_1fr] items-center gap-y-3 text-[13px]">
-            <span class="text-base-content/50">Atanan</span>
-            <select name="AssignedUserId" class="select select-sm w-full max-w-xs">
-                <option value="">— Atanmadı —</option>
-                @foreach (var u in Model.Users) { <option value="@u.Id" selected="@(u.Id == card.AssignedUserId)">@u.UserName</option> }
-            </select>
-
-            <span class="text-base-content/50">Açan</span>
-            <span>@(card.CreatedByUser?.UserName ?? "—")</span>
-
-            <span class="text-base-content/50">Öncelik</span>
-            <select name="Priority" class="select select-sm w-full max-w-xs">
-                @foreach (var p in Enum.GetValues<CardPriority>()) { <option value="@p" selected="@(p == card.Priority)">@CardPriorityDisplay.Label(p)</option> }
-            </select>
-
-            <span class="text-base-content/50">Son tarih</span>
-            <input type="date" name="DueAtUtc" value="@(card.DueAtUtc?.ToString("yyyy-MM-dd"))" class="input input-sm w-full max-w-xs" />
-
-            <span class="text-base-content/50">Etiketler</span>
-            <input name="Tags" value="@card.Tags" class="input input-sm w-full max-w-xs" placeholder="virgülle ayırın" />
+<div class="flex items-center justify-between border-b border-base-300 px-4 py-2.5">
+    <select name="BoardColumnId" form="update-card-form" class="select select-sm rounded-full border-none bg-base-200 font-medium">
+        @foreach (var col in Model.Columns) { <option value="@col.Id" selected="@(col.Id == card.BoardColumnId)">@col.Name</option> }
+    </select>
+    <div class="flex items-center gap-1">
+        <div class="dropdown dropdown-end">
+            <button tabindex="0" type="button" class="btn btn-square btn-ghost btn-sm" aria-label="Diğer">⋯</button>
+            <ul tabindex="0" class="menu dropdown-content z-30 w-48 rounded-box border border-base-300 bg-base-100 p-1 text-[13px] shadow-xl">
+                <li><form asp-action="ArchiveCard" asp-route-id="@card.Id" method="post" class="contents"><button type="submit" class="w-full text-left">Arşivle</button></form></li>
+            </ul>
         </div>
-
-        <div class="divider"></div>
-        <textarea name="Description" class="textarea w-full min-h-24" placeholder="Açıklama ekleyin…">@card.Description</textarea>
-
-        <div class="mt-3 flex justify-end"><button class="btn btn-primary btn-sm">Kaydet</button></div>
+        <button type="button" class="btn btn-square btn-ghost btn-sm" onclick="card_detail.close()" aria-label="Kapat">✕</button>
     </div>
-</form>
-<div class="divider px-5">Yorumlar</div>
-<div class="space-y-3 px-5">
-    @if (card.Comments.Count == 0) { <p class="text-[13px] text-base-content/50">Henüz yorum yok — ilk notu sen ekle.</p> }
-    @foreach (var c in card.Comments) {
-        <div class="rounded-md bg-base-200 p-3 text-[13px]">
-            <div class="mb-1 flex items-center justify-between text-xs text-base-content/50">
-                <span class="font-semibold text-base-content/70">@(c.Author?.UserName ?? "Silinmiş kullanıcı")</span>
-                <span>@c.CreDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
-            </div>
-            <p class="whitespace-pre-wrap">@c.Body</p>
-        </div>
-    }
 </div>
-<form method="post" asp-controller="Boards" asp-action="AddComment" class="px-5 py-4">
-    <input type="hidden" name="BoardCardId" value="@card.Id" />
-    <textarea name="Body" required class="textarea min-h-16 w-full" placeholder="Yorum yazın…"></textarea>
-    <div class="mt-2 flex justify-end"><button class="btn btn-sm btn-primary">Yorum ekle</button></div>
-</form>
+<div class="flex min-h-0 flex-1">
+    <div class="min-w-0 flex-1 overflow-y-auto border-r border-base-300 px-5 py-4">
+        <form id="update-card-form" method="post" asp-controller="Boards" asp-action="UpdateCard">
+            <input type="hidden" name="Id" value="@card.Id" />
+            <input name="Title" value="@card.Title" class="input input-ghost w-full border border-transparent px-0 text-xl font-bold hover:border-base-300 focus:border-base-300 focus:outline-none" />
+
+            <div class="mt-4 flex flex-wrap gap-2">
+                <button type="button" class="btn btn-sm" onclick="document.getElementById('meta-DueAtUtc').focus()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>Tarihler</button>
+                <button type="button" class="btn btn-sm" onclick="document.getElementById('subtasks-section').scrollIntoView({behavior:'smooth'})"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Kontrol listesi</button>
+                <button type="button" class="btn btn-sm" onclick="document.getElementById('meta-AssignedUserId').focus()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4"><path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5a5.25 5.25 0 11-10.5 0 5.25 5.25 0 0110.5 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z" /></svg>Üyeler</button>
+                <button type="button" class="btn btn-sm" onclick="document.getElementById('meta-AttachmentUrl').focus()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01" /></svg>Ekleri</button>
+            </div>
+
+            <div class="mt-4 grid grid-cols-2 gap-3 rounded-box border border-base-300 p-3 text-[13px] sm:grid-cols-3">
+                <div>
+                    <label class="mb-1 block text-xs text-base-content/50">Atanan</label>
+                    <select id="meta-AssignedUserId" name="AssignedUserId" class="select select-sm w-full">
+                        <option value="">— Atanmadı —</option>
+                        @foreach (var u in Model.Users) { <option value="@u.Id" selected="@(u.Id == card.AssignedUserId)">@u.UserName</option> }
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-xs text-base-content/50">Öncelik</label>
+                    <select name="Priority" class="select select-sm w-full">
+                        @foreach (var p in Enum.GetValues<CardPriority>()) { <option value="@p" selected="@(p == card.Priority)">@CardPriorityDisplay.Label(p)</option> }
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-xs text-base-content/50">Son tarih</label>
+                    <input id="meta-DueAtUtc" type="date" name="DueAtUtc" value="@(card.DueAtUtc?.ToString("yyyy-MM-dd"))" class="input input-sm w-full" />
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                    <label class="mb-1 block text-xs text-base-content/50">Bağlantı</label>
+                    <input id="meta-AttachmentUrl" name="AttachmentUrl" value="@card.AttachmentUrl" class="input input-sm w-full" placeholder="https://…" />
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                    <label class="mb-1 block text-xs text-base-content/50">Bağlantı adı</label>
+                    <input name="AttachmentLabel" value="@card.AttachmentLabel" class="input input-sm w-full" placeholder="Görüntülenecek metin" />
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                    <label class="mb-1 block text-xs text-base-content/50">Açan</label>
+                    <p class="pt-1.5">@(card.CreatedByUser?.UserName ?? "—")</p>
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <div class="mb-2 text-sm font-semibold">Etiketler</div>
+                <div class="flex flex-wrap items-center gap-2">
+                    @if (!string.IsNullOrWhiteSpace(card.Tags)) { foreach (var tag in card.Tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)) { <span class="badge @TagColorDisplay.BadgeClass(tag)">@tag</span> } }
+                    <button type="button" class="btn btn-square btn-ghost btn-xs border border-base-300" onclick="document.getElementById('meta-Tags').classList.toggle('hidden')" aria-label="Etiket düzenle">+</button>
+                </div>
+                <input id="meta-Tags" name="Tags" value="@card.Tags" class="input input-sm mt-2 hidden w-full" placeholder="virgülle ayırın" />
+            </div>
+
+            <div class="mt-5">
+                <div class="mb-2 flex items-center gap-2 text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>Açıklama</div>
+                <textarea name="Description" class="textarea w-full min-h-28 border-base-300" placeholder="Daha ayrıntılı bir açıklama ekleyin…">@card.Description</textarea>
+            </div>
+
+            <div id="subtasks-section" class="mt-5">
+                <div class="mb-2 flex items-center gap-2 text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>Kontrol listesi</div>
+                <div class="space-y-2">
+                    @foreach (var sub in card.Subtasks) {
+                        <div class="flex items-center gap-2 text-[13px]">
+                            <input type="checkbox" class="subtask-toggle checkbox checkbox-sm" data-subtask-id="@sub.Id" @(sub.IsDone ? "checked" : "") />
+                            <span class="subtask-label flex-1 @(sub.IsDone ? "text-base-content/40 line-through" : "")">@sub.Title</span>
+                            <form asp-action="DeleteSubtask" asp-route-id="@sub.Id" method="post" class="contents" onsubmit="return confirm('Alt görev silinsin mi?')"><button class="btn btn-ghost btn-xs text-error" aria-label="Sil">✕</button></form>
+                        </div>
+                    }
+                    @if (card.Subtasks.Count == 0) { <p class="text-[13px] text-base-content/50">Henüz alt görev yok.</p> }
+                </div>
+            </div>
+
+            <div class="mt-5 flex justify-end"><button class="btn btn-primary btn-sm">Kaydet</button></div>
+        </form>
+        <form asp-action="AddSubtask" method="post" class="mt-2 flex gap-2">
+            <input type="hidden" name="cardId" value="@card.Id" />
+            <input name="title" required maxlength="200" class="input input-sm w-full" placeholder="Kontrol listesine ekle…" />
+            <button class="btn btn-sm btn-primary shrink-0">Ekle</button>
+        </form>
+    </div>
+
+    <div class="flex w-[320px] shrink-0 flex-col bg-base-200">
+        <div class="flex items-center justify-between border-b border-base-300 px-4 py-3">
+            <div class="flex items-center gap-2 text-sm font-semibold"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" /></svg>Yorumlar ve etkinlik</div>
+        </div>
+        <div class="px-4 py-3">
+            <form method="post" asp-controller="Boards" asp-action="AddComment">
+                <input type="hidden" name="BoardCardId" value="@card.Id" />
+                <textarea name="Body" required class="textarea min-h-16 w-full border-base-300 bg-base-100" placeholder="Yorum yaz…"></textarea>
+                <div class="mt-2 flex justify-end"><button class="btn btn-sm btn-primary">Gönder</button></div>
+            </form>
+        </div>
+        <div class="flex-1 space-y-3 overflow-y-auto px-4 pb-4">
+            @if (card.Comments.Count == 0) { <p class="text-[13px] text-base-content/50">Henüz yorum yok — ilk notu sen ekle.</p> }
+            @foreach (var c in card.Comments.OrderByDescending(x => x.CreDate)) {
+                <div class="rounded-md border border-base-300 bg-base-100 p-3 text-[13px]">
+                    <div class="mb-1 flex items-center justify-between text-xs text-base-content/50">
+                        <span class="font-semibold text-base-content/70">@(c.Author?.UserName ?? "Silinmiş kullanıcı")</span>
+                        <span>@c.CreDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                    </div>
+                    <p class="whitespace-pre-wrap">@c.Body</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

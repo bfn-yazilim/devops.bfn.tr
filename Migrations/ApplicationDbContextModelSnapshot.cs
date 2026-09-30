@@ -137,7 +137,8 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(16);
 
-                    b.Property<Guid>("UId")
+                    b.Property<string>("UId")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1000)
@@ -222,7 +223,8 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(2);
 
-                    b.Property<Guid>("UId")
+                    b.Property<string>("UId")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1000)
@@ -250,9 +252,19 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnOrder(2);
 
+                    b.Property<string>("AttachmentLabel")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(3);
+
+                    b.Property<string>("AttachmentUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(4);
+
                     b.Property<int>("BoardColumnId")
                         .HasColumnType("INTEGER")
-                        .HasColumnOrder(3);
+                        .HasColumnOrder(5);
 
                     b.Property<string>("Client")
                         .HasMaxLength(50)
@@ -278,7 +290,7 @@ namespace Bfn.DevOps.Migrations
                     b.Property<string>("CreatedByUserId")
                         .HasMaxLength(450)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(4);
+                        .HasColumnOrder(6);
 
                     b.Property<DateTime?>("DelDate")
                         .HasColumnType("TEXT")
@@ -292,11 +304,11 @@ namespace Bfn.DevOps.Migrations
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(5);
+                        .HasColumnOrder(7);
 
                     b.Property<DateTime?>("DueAtUtc")
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(6);
+                        .HasColumnOrder(8);
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -318,24 +330,25 @@ namespace Bfn.DevOps.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasDefaultValue("Unspecified")
-                        .HasColumnOrder(7);
+                        .HasColumnOrder(9);
 
                     b.Property<int>("SortOrder")
                         .HasColumnType("INTEGER")
-                        .HasColumnOrder(8);
+                        .HasColumnOrder(10);
 
                     b.Property<string>("Tags")
                         .HasMaxLength(300)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(9);
+                        .HasColumnOrder(11);
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("TEXT")
-                        .HasColumnOrder(10);
+                        .HasColumnOrder(12);
 
-                    b.Property<Guid>("UId")
+                    b.Property<string>("UId")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1000)
@@ -423,7 +436,8 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1003);
 
-                    b.Property<Guid>("UId")
+                    b.Property<string>("UId")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1000)
@@ -436,6 +450,90 @@ namespace Bfn.DevOps.Migrations
                     b.HasIndex("BoardCardId", "CreDate");
 
                     b.ToTable("BoardCardComments");
+                });
+
+            modelBuilder.Entity("Bfn.DevOps.Models.BoardCardSubtask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(0);
+
+                    b.Property<int>("BoardCardId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(1);
+
+                    b.Property<string>("Client")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1007);
+
+                    b.Property<string>("ClientIp")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1008);
+
+                    b.Property<DateTime>("CreDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1002)
+                        .HasDefaultValueSql("'1970-01-01 00:00:00'");
+
+                    b.Property<string>("CreUser")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1001);
+
+                    b.Property<DateTime?>("DelDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1006);
+
+                    b.Property<string>("DelUser")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1005);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false)
+                        .HasColumnOrder(1009);
+
+                    b.Property<bool>("IsDone")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(2);
+
+                    b.Property<DateTime?>("ModDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1004);
+
+                    b.Property<string>("ModUser")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1003);
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(3);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(4);
+
+                    b.Property<string>("UId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1000)
+                        .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BoardCardId", "SortOrder");
+
+                    b.ToTable("BoardCardSubtasks");
                 });
 
             modelBuilder.Entity("Bfn.DevOps.Models.BoardColumn", b =>
@@ -504,7 +602,8 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(3);
 
-                    b.Property<Guid>("UId")
+                    b.Property<string>("UId")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1000)
@@ -598,7 +697,8 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnOrder(6);
 
-                    b.Property<Guid>("UId")
+                    b.Property<string>("UId")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1000)
@@ -609,6 +709,97 @@ namespace Bfn.DevOps.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("DeploymentRuns");
+                });
+
+            modelBuilder.Entity("Bfn.DevOps.Models.DeploymentRunStep", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(0);
+
+                    b.Property<string>("Client")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1007);
+
+                    b.Property<string>("ClientIp")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1008);
+
+                    b.Property<DateTime>("CreDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1002)
+                        .HasDefaultValueSql("'1970-01-01 00:00:00'");
+
+                    b.Property<string>("CreUser")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1001);
+
+                    b.Property<DateTime?>("DelDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1006);
+
+                    b.Property<string>("DelUser")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1005);
+
+                    b.Property<int>("DeploymentRunId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(1);
+
+                    b.Property<int>("DeploymentStepId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(2);
+
+                    b.Property<DateTime?>("FinishedAtUtc")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(3);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false)
+                        .HasColumnOrder(1009);
+
+                    b.Property<DateTime?>("ModDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1004);
+
+                    b.Property<string>("ModUser")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1003);
+
+                    b.Property<DateTime?>("StartedAtUtc")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(4);
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(5);
+
+                    b.Property<string>("UId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1000)
+                        .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeploymentStepId");
+
+                    b.HasIndex("DeploymentRunId", "DeploymentStepId")
+                        .IsUnique();
+
+                    b.ToTable("DeploymentRunSteps");
                 });
 
             modelBuilder.Entity("Bfn.DevOps.Models.DeploymentStep", b =>
@@ -690,22 +881,24 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(6);
 
-                    b.Property<int>("TimeoutSeconds")
+                    b.Property<int>("StepTypeId")
                         .HasColumnType("INTEGER")
                         .HasColumnOrder(7);
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("TEXT")
+                    b.Property<int>("TimeoutSeconds")
+                        .HasColumnType("INTEGER")
                         .HasColumnOrder(8);
 
-                    b.Property<Guid>("UId")
+                    b.Property<string>("UId")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1000)
                         .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("StepTypeId");
 
                     b.HasIndex("ProjectId", "SortOrder");
 
@@ -755,10 +948,119 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1005);
 
+                    b.Property<string>("Environment")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("Dev")
+                        .HasColumnOrder(2);
+
                     b.Property<string>("IisSiteName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT")
+                        .HasColumnOrder(3);
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false)
+                        .HasColumnOrder(1009);
+
+                    b.Property<DateTime?>("ModDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1004);
+
+                    b.Property<string>("ModUser")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1003);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(4);
+
+                    b.Property<string>("RepositoryUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(5);
+
+                    b.Property<string>("UId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1000)
+                        .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(6);
+
+                    b.Property<string>("WorkingDirectory")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(7);
+
+                    b.Property<bool>("ZeroDowntimeEnabled")
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(8);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name", "Environment")
+                        .IsUnique();
+
+                    b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("Bfn.DevOps.Models.StepType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasColumnOrder(0);
+
+                    b.Property<string>("Client")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1007);
+
+                    b.Property<string>("ClientIp")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1008);
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1);
+
+                    b.Property<DateTime>("CreDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1002)
+                        .HasDefaultValueSql("'1970-01-01 00:00:00'");
+
+                    b.Property<string>("CreUser")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1001);
+
+                    b.Property<DateTime?>("DelDate")
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1006);
+
+                    b.Property<string>("DelUser")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT")
+                        .HasColumnOrder(1005);
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER")
                         .HasColumnOrder(2);
 
                     b.Property<bool>("IsDeleted")
@@ -782,37 +1084,23 @@ namespace Bfn.DevOps.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnOrder(3);
 
-                    b.Property<string>("RepositoryUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT")
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("INTEGER")
                         .HasColumnOrder(4);
 
-                    b.Property<Guid>("UId")
+                    b.Property<string>("UId")
+                        .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT")
                         .HasColumnOrder(1000)
                         .HasDefaultValueSql("'00000000-0000-0000-0000-000000000000'");
 
-                    b.Property<string>("Url")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT")
-                        .HasColumnOrder(5);
-
-                    b.Property<string>("WorkingDirectory")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT")
-                        .HasColumnOrder(6);
-
-                    b.Property<bool>("ZeroDowntimeEnabled")
-                        .HasColumnType("INTEGER")
-                        .HasColumnOrder(7);
-
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("Projects");
+                    b.ToTable("StepTypes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -839,29 +1127,6 @@ namespace Bfn.DevOps.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("SyRole", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("RoleId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("SyRoleClaim", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -963,6 +1228,17 @@ namespace Bfn.DevOps.Migrations
                     b.Navigation("Card");
                 });
 
+            modelBuilder.Entity("Bfn.DevOps.Models.BoardCardSubtask", b =>
+                {
+                    b.HasOne("Bfn.DevOps.Models.BoardCard", "Card")
+                        .WithMany("Subtasks")
+                        .HasForeignKey("BoardCardId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Card");
+                });
+
             modelBuilder.Entity("Bfn.DevOps.Models.BoardColumn", b =>
                 {
                     b.HasOne("Bfn.DevOps.Models.Board", "Board")
@@ -985,6 +1261,25 @@ namespace Bfn.DevOps.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("Bfn.DevOps.Models.DeploymentRunStep", b =>
+                {
+                    b.HasOne("Bfn.DevOps.Models.DeploymentRun", "Run")
+                        .WithMany("StepRuns")
+                        .HasForeignKey("DeploymentRunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bfn.DevOps.Models.DeploymentStep", "Step")
+                        .WithMany()
+                        .HasForeignKey("DeploymentStepId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Run");
+
+                    b.Navigation("Step");
+                });
+
             modelBuilder.Entity("Bfn.DevOps.Models.DeploymentStep", b =>
                 {
                     b.HasOne("Bfn.DevOps.Models.DevOpsProject", "Project")
@@ -993,16 +1288,15 @@ namespace Bfn.DevOps.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                    b.HasOne("Bfn.DevOps.Models.StepType", "StepType")
                         .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("StepTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Project");
+
+                    b.Navigation("StepType");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -1046,11 +1340,18 @@ namespace Bfn.DevOps.Migrations
             modelBuilder.Entity("Bfn.DevOps.Models.BoardCard", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Subtasks");
                 });
 
             modelBuilder.Entity("Bfn.DevOps.Models.BoardColumn", b =>
                 {
                     b.Navigation("Cards");
+                });
+
+            modelBuilder.Entity("Bfn.DevOps.Models.DeploymentRun", b =>
+                {
+                    b.Navigation("StepRuns");
                 });
 
             modelBuilder.Entity("Bfn.DevOps.Models.DevOpsProject", b =>

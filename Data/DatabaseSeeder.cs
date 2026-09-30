@@ -34,6 +34,22 @@ public static class DatabaseSeeder
         for (var i = 0; i < orderedColumns.Count; i++) orderedColumns[i].SortOrder = i;
         await db.SaveChangesAsync();
 
+        (string Code, string Name)[] expectedStepTypes =
+        [
+            ("GitClone", "Git Clone"), ("NpmInstall", "NPM Install"), ("DotnetPublish", "Dotnet Publish"),
+            ("FileCopy", "Dosya Kopyala"), ("FileDelete", "Dosya Sil"), ("FileCopyAll", "Tüm Dosyaları Kopyala"),
+            ("FileDeleteAll", "Tüm Dosyaları Sil"), ("IisStop", "IIS Durdur"), ("IisStart", "IIS Başlat"),
+            ("IisChangeDirectory", "IIS Dizini Değiştir"), ("AppPoolStart", "App Pool Başlat"), ("AppPoolStop", "App Pool Durdur"),
+            ("HealthCheck", "Health Check"), ("PowerShell", "PowerShell")
+        ];
+        var existingStepTypes = await db.StepTypes.Select(x => x.Code).ToListAsync();
+        for (var i = 0; i < expectedStepTypes.Length; i++)
+        {
+            var (code, name) = expectedStepTypes[i];
+            if (!existingStepTypes.Contains(code)) db.StepTypes.Add(new StepType { Code = code, Name = name, SortOrder = i });
+        }
+        await db.SaveChangesAsync();
+
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var usersOnLegacyDefault = await users.Users.Where(x => x.Theme == "" || x.Theme == "bfnlight").ToListAsync();
         foreach (var existingUser in usersOnLegacyDefault) { existingUser.Theme = "bfnorbi"; await users.UpdateAsync(existingUser); }

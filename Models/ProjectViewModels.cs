@@ -2,11 +2,57 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bfn.DevOps.Models;
 
+public static class ProjectEnvironmentDisplay
+{
+    public static string Label(ProjectEnvironment env) => env switch
+    {
+        ProjectEnvironment.Dev => "Dev",
+        ProjectEnvironment.Test => "Test",
+        ProjectEnvironment.PreTest => "Pre-Test",
+        ProjectEnvironment.PreProd => "Pre-Prod",
+        ProjectEnvironment.Prod => "Prod",
+        _ => env.ToString()
+    };
+
+    public static string BadgeClass(ProjectEnvironment env) => env switch
+    {
+        ProjectEnvironment.Dev => "badge-ghost",
+        ProjectEnvironment.Test => "badge-info",
+        ProjectEnvironment.PreTest => "badge-secondary",
+        ProjectEnvironment.PreProd => "badge-warning",
+        ProjectEnvironment.Prod => "badge-error",
+        _ => "badge-ghost"
+    };
+}
+
+public sealed class ProjectListItemViewModel
+{
+    public DevOpsProject Project { get; set; } = null!;
+    public DeploymentRun? LatestRun { get; set; }
+}
+
+public sealed class StepsPageViewModel
+{
+    public DevOpsProject Project { get; set; } = null!;
+    public bool IsRunning { get; set; }
+    public Dictionary<int, string> StepStatuses { get; set; } = [];
+}
+
+public sealed class DeploymentDetailViewModel
+{
+    public DevOpsProject Project { get; set; } = null!;
+    public List<DeploymentStep> Steps { get; set; } = [];
+    public DeploymentRun? LatestRun { get; set; }
+    public Dictionary<int, string> StepStatuses { get; set; } = [];
+    public bool IsRunning => LatestRun?.Status == "Running";
+}
+
 public sealed class ProjectEditViewModel
 {
     public int Id { get; set; }
     public Guid UId { get; set; }
     [Required, MaxLength(100), Display(Name = "Proje adı")] public string Name { get; set; } = "";
+    [Display(Name = "Ortam")] public ProjectEnvironment Environment { get; set; } = ProjectEnvironment.Dev;
     [MaxLength(200), Display(Name = "URL / host adı")] public string? Url { get; set; }
     [Required, MaxLength(100), Display(Name = "IIS site adı")] public string IisSiteName { get; set; } = "";
     [Required, MaxLength(100), Display(Name = "Application Pool adı")] public string ApplicationPoolName { get; set; } = "";
@@ -21,7 +67,9 @@ public sealed class DeploymentStepEditViewModel
     public int ProjectId { get; set; }
     public Guid ProjectUId { get; set; }
     [Required, MaxLength(120), Display(Name = "Adım adı")] public string Name { get; set; } = "";
-    [Display(Name = "Adım türü")] public DeploymentStepType Type { get; set; }
+    [Display(Name = "Adım türü")] public int StepTypeId { get; set; }
+    public string StepTypeCode { get; set; } = "";
+    public List<StepType> StepTypes { get; set; } = [];
     [Range(5, 7200), Display(Name = "Zaman aşımı (sn)")] public int TimeoutSeconds { get; set; } = 600;
     [Display(Name = "Aktif")] public bool IsEnabled { get; set; } = true;
     [Display(Name = "Hatada devam et")] public bool ContinueOnError { get; set; }
@@ -50,6 +98,8 @@ public sealed class BoardCardUpdateViewModel
     [Display(Name = "Öncelik")] public CardPriority Priority { get; set; }
     [Display(Name = "Son tarih")] public DateTime? DueAtUtc { get; set; }
     [MaxLength(300), Display(Name = "Etiketler")] public string? Tags { get; set; }
+    [MaxLength(500), Display(Name = "Bağlantı / Dosya URL")] public string? AttachmentUrl { get; set; }
+    [MaxLength(200), Display(Name = "Bağlantı etiketi")] public string? AttachmentLabel { get; set; }
 }
 
 public sealed class BoardCardCommentViewModel

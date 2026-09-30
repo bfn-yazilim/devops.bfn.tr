@@ -19,6 +19,7 @@ namespace Bfn.DevOps.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
                     CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
                     ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
@@ -27,8 +28,7 @@ namespace Bfn.DevOps.Migrations
                     DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Deleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
-                    UId = table.Column<Guid>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'")
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -42,12 +42,14 @@ namespace Bfn.DevOps.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     ApplicationPoolName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Environment = table.Column<string>(type: "TEXT", nullable: false, defaultValue: "Dev"),
                     IisSiteName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     RepositoryUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     Url = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
                     WorkingDirectory = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     ZeroDowntimeEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
                     CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
                     ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
@@ -56,12 +58,37 @@ namespace Bfn.DevOps.Migrations
                     DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Deleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
-                    UId = table.Column<Guid>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'")
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Projects", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StepTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Code = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
+                    CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
+                    CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
+                    ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
+                    ModDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DelUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
+                    DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StepTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -100,6 +127,7 @@ namespace Bfn.DevOps.Migrations
                     Theme = table.Column<string>(type: "TEXT", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
                     UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
                     CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
                     ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
@@ -108,8 +136,7 @@ namespace Bfn.DevOps.Migrations
                     DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Deleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
-                    UId = table.Column<Guid>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'")
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -125,6 +152,7 @@ namespace Bfn.DevOps.Migrations
                     BoardId = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", maxLength: 80, nullable: false),
                     SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
                     CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
                     ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
@@ -133,8 +161,7 @@ namespace Bfn.DevOps.Migrations
                     DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Deleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
-                    UId = table.Column<Guid>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'")
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -159,6 +186,7 @@ namespace Bfn.DevOps.Migrations
                     RequestedByUserId = table.Column<string>(type: "TEXT", maxLength: 450, nullable: false),
                     StartedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Status = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
                     CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
                     ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
@@ -167,8 +195,7 @@ namespace Bfn.DevOps.Migrations
                     DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Deleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
-                    UId = table.Column<Guid>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'")
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -193,8 +220,9 @@ namespace Bfn.DevOps.Migrations
                     ProjectId = table.Column<int>(type: "INTEGER", nullable: false),
                     SettingsJson = table.Column<string>(type: "TEXT", nullable: false),
                     SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    StepTypeId = table.Column<int>(type: "INTEGER", nullable: false),
                     TimeoutSeconds = table.Column<int>(type: "INTEGER", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", nullable: false),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
                     CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
                     ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
@@ -203,8 +231,7 @@ namespace Bfn.DevOps.Migrations
                     DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Deleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
-                    UId = table.Column<Guid>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'")
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -215,27 +242,12 @@ namespace Bfn.DevOps.Migrations
                         principalTable: "Projects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SyRoleClaim",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SyRoleClaim", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SyRoleClaim_SyRole_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "SyRole",
+                        name: "FK_DeploymentSteps_StepTypes_StepTypeId",
+                        column: x => x.StepTypeId,
+                        principalTable: "StepTypes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -310,6 +322,8 @@ namespace Bfn.DevOps.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     AssignedAgentId = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     AssignedUserId = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
+                    AttachmentLabel = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
+                    AttachmentUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
                     BoardColumnId = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedByUserId = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     Description = table.Column<string>(type: "TEXT", maxLength: 4000, nullable: true),
@@ -318,6 +332,7 @@ namespace Bfn.DevOps.Migrations
                     SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
                     Tags = table.Column<string>(type: "TEXT", maxLength: 300, nullable: true),
                     Title = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
                     CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
                     ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
@@ -326,8 +341,7 @@ namespace Bfn.DevOps.Migrations
                     DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Deleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
-                    UId = table.Column<Guid>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'")
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -353,6 +367,45 @@ namespace Bfn.DevOps.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DeploymentRunSteps",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    DeploymentRunId = table.Column<int>(type: "INTEGER", nullable: false),
+                    DeploymentStepId = table.Column<int>(type: "INTEGER", nullable: false),
+                    FinishedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    StartedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Status = table.Column<string>(type: "TEXT", maxLength: 40, nullable: false),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
+                    CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
+                    CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
+                    ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
+                    ModDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DelUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
+                    DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DeploymentRunSteps", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DeploymentRunSteps_DeploymentRuns_DeploymentRunId",
+                        column: x => x.DeploymentRunId,
+                        principalTable: "DeploymentRuns",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_DeploymentRunSteps_DeploymentSteps_DeploymentStepId",
+                        column: x => x.DeploymentStepId,
+                        principalTable: "DeploymentSteps",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BoardCardComments",
                 columns: table => new
                 {
@@ -362,6 +415,7 @@ namespace Bfn.DevOps.Migrations
                     AuthorUserId = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     BoardCardId = table.Column<int>(type: "INTEGER", nullable: false),
                     Body = table.Column<string>(type: "TEXT", maxLength: 4000, nullable: false),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
                     CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
                     CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
                     ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
@@ -370,8 +424,7 @@ namespace Bfn.DevOps.Migrations
                     DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
                     Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
                     ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
-                    Deleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
-                    UId = table.Column<Guid>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'")
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -388,6 +441,38 @@ namespace Bfn.DevOps.Migrations
                         principalTable: "SyUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BoardCardSubtasks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    BoardCardId = table.Column<int>(type: "INTEGER", nullable: false),
+                    IsDone = table.Column<bool>(type: "INTEGER", nullable: false),
+                    SortOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    Title = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
+                    UId = table.Column<string>(type: "TEXT", nullable: false, defaultValueSql: "'00000000-0000-0000-0000-000000000000'"),
+                    CreUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
+                    CreDate = table.Column<DateTime>(type: "TEXT", nullable: false, defaultValueSql: "'1970-01-01 00:00:00'"),
+                    ModUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
+                    ModDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DelUser = table.Column<string>(type: "TEXT", maxLength: 450, nullable: true),
+                    DelDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Client = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    ClientIp = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BoardCardSubtasks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BoardCardSubtasks_BoardCards_BoardCardId",
+                        column: x => x.BoardCardId,
+                        principalTable: "BoardCards",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -416,6 +501,11 @@ namespace Bfn.DevOps.Migrations
                 column: "CreatedByUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BoardCardSubtasks_BoardCardId_SortOrder",
+                table: "BoardCardSubtasks",
+                columns: new[] { "BoardCardId", "SortOrder" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BoardColumns_BoardId_SortOrder",
                 table: "BoardColumns",
                 columns: new[] { "BoardId", "SortOrder" });
@@ -426,14 +516,36 @@ namespace Bfn.DevOps.Migrations
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_DeploymentRunSteps_DeploymentRunId_DeploymentStepId",
+                table: "DeploymentRunSteps",
+                columns: new[] { "DeploymentRunId", "DeploymentStepId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeploymentRunSteps_DeploymentStepId",
+                table: "DeploymentRunSteps",
+                column: "DeploymentStepId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_DeploymentSteps_ProjectId_SortOrder",
                 table: "DeploymentSteps",
                 columns: new[] { "ProjectId", "SortOrder" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Projects_Name",
+                name: "IX_DeploymentSteps_StepTypeId",
+                table: "DeploymentSteps",
+                column: "StepTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_Name_Environment",
                 table: "Projects",
-                column: "Name",
+                columns: new[] { "Name", "Environment" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StepTypes_Code",
+                table: "StepTypes",
+                column: "Code",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -441,11 +553,6 @@ namespace Bfn.DevOps.Migrations
                 table: "SyRole",
                 column: "NormalizedName",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SyRoleClaim_RoleId",
-                table: "SyRoleClaim",
-                column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -476,13 +583,10 @@ namespace Bfn.DevOps.Migrations
                 name: "BoardCardComments");
 
             migrationBuilder.DropTable(
-                name: "DeploymentRuns");
+                name: "BoardCardSubtasks");
 
             migrationBuilder.DropTable(
-                name: "DeploymentSteps");
-
-            migrationBuilder.DropTable(
-                name: "SyRoleClaim");
+                name: "DeploymentRunSteps");
 
             migrationBuilder.DropTable(
                 name: "SyUserLogin");
@@ -497,7 +601,10 @@ namespace Bfn.DevOps.Migrations
                 name: "BoardCards");
 
             migrationBuilder.DropTable(
-                name: "Projects");
+                name: "DeploymentRuns");
+
+            migrationBuilder.DropTable(
+                name: "DeploymentSteps");
 
             migrationBuilder.DropTable(
                 name: "SyRole");
@@ -507,6 +614,12 @@ namespace Bfn.DevOps.Migrations
 
             migrationBuilder.DropTable(
                 name: "SyUser");
+
+            migrationBuilder.DropTable(
+                name: "Projects");
+
+            migrationBuilder.DropTable(
+                name: "StepTypes");
 
             migrationBuilder.DropTable(
                 name: "Boards");

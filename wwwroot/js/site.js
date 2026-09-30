@@ -1,5 +1,32 @@
 const csrfToken = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 
+(function setupCardDetailResize() {
+  const handle = document.getElementById('card_detail_resize');
+  const panel = document.getElementById('card_detail_panel');
+  if (!handle || !panel) return;
+  const minWidth = 480;
+  const maxWidth = () => Math.min(window.innerWidth - 40, 1280);
+  const saved = Number(localStorage.getItem('cardDetailWidth'));
+  if (saved) panel.style.width = `${Math.min(Math.max(saved, minWidth), maxWidth())}px`;
+  let startX = 0, startWidth = 0, resizing = false;
+  handle.addEventListener('mousedown', event => {
+    resizing = true; startX = event.clientX; startWidth = panel.getBoundingClientRect().width;
+    document.body.style.cursor = 'col-resize'; document.body.style.userSelect = 'none';
+    event.preventDefault();
+  });
+  window.addEventListener('mousemove', event => {
+    if (!resizing) return;
+    const width = Math.min(Math.max(startWidth + (event.clientX - startX), minWidth), maxWidth());
+    panel.style.width = `${width}px`;
+  });
+  window.addEventListener('mouseup', () => {
+    if (!resizing) return;
+    resizing = false;
+    document.body.style.cursor = ''; document.body.style.userSelect = '';
+    localStorage.setItem('cardDetailWidth', Math.round(panel.getBoundingClientRect().width));
+  });
+})();
+
 window.setupStepSorting = () => {
   const list = document.querySelector('#steps');
   if (!list) return;
@@ -21,6 +48,21 @@ window.setupStepSorting = () => {
   });
 };
 
+window.bindSubtaskToggles = (root) => {
+  root.querySelectorAll('.subtask-toggle').forEach(checkbox => {
+    checkbox.addEventListener('click', event => event.stopPropagation());
+    checkbox.addEventListener('change', async () => {
+      const label = checkbox.nextElementSibling;
+      const response = await fetch(`/Boards/ToggleSubtask?id=${checkbox.dataset.subtaskId}`, { method: 'POST', headers: { 'RequestVerificationToken': csrfToken() } });
+      if (!response.ok) { checkbox.checked = !checkbox.checked; return; }
+      const result = await response.json();
+      label.classList.toggle('line-through', result.done);
+      label.classList.toggle('text-base-content/40', result.done);
+      label.classList.toggle('text-base-content/80', !result.done);
+    });
+  });
+};
+
 window.openCardDetail = async (id) => {
   const dialog = document.querySelector('#card_detail');
   const content = document.querySelector('#card_detail_content');
@@ -30,6 +72,7 @@ window.openCardDetail = async (id) => {
   try {
     const response = await fetch(`/Boards/CardDetail/${id}`);
     content.innerHTML = response.ok ? await response.text() : '<div class="p-6 text-error">Kart yüklenemedi.</div>';
+    window.bindSubtaskToggles(content);
   } catch { content.innerHTML = '<div class="p-6 text-error">Kart yüklenemedi.</div>'; }
 };
 
@@ -69,7 +112,17 @@ window.setupBoard = () => {
 
   let dragged;
   document.querySelectorAll('.board-card').forEach(card => {
-    card.addEventListener('dragstart', () => { dragged = card; card.classList.add('dragging'); });
+    card.addEventListener('dragstart', event => {
+      dragged = card;
+      card.classList.add('dragging');
+      const clone = card.cloneNode(true);
+      clone.classList.remove('dragging');
+      clone.classList.add('board-card-drag-clone');
+      clone.style.width = `${card.offsetWidth}px`;
+      document.body.appendChild(clone);
+      event.dataTransfer.setDragImage(clone, event.offsetX, event.offsetY);
+      setTimeout(() => clone.remove(), 0);
+    });
     card.addEventListener('dragend', async () => {
       card.classList.remove('dragging');
       const list = card.closest('.card-list');
@@ -84,6 +137,8 @@ window.setupBoard = () => {
     const after = [...list.querySelectorAll('.board-card:not(.dragging)')].find(x => event.clientY < x.getBoundingClientRect().top + x.offsetHeight / 2);
     list.insertBefore(dragged, after || null);
   }));
+
+  window.bindSubtaskToggles(document);
 
   document.querySelectorAll('.add-card-area').forEach(area => {
     const btn = area.querySelector('.add-card-btn');

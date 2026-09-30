@@ -5,7 +5,17 @@ using Microsoft.Web.Administration;
 namespace Bfn.DevOps.Services;
 
 public sealed class IisOptions { public string SitesRoot { get; set; } = @"C:\inetpub\wwwroot"; }
-public interface IIisService { IReadOnlyList<IisSiteInfo> GetSites(); void CreateSite(CreateSiteViewModel model); void ApplyProject(DevOpsProject project); }
+public interface IIisService
+{
+    IReadOnlyList<IisSiteInfo> GetSites();
+    void CreateSite(CreateSiteViewModel model);
+    void ApplyProject(DevOpsProject project);
+    void StartSite(string siteName);
+    void StopSite(string siteName);
+    void StartAppPool(string poolName);
+    void StopAppPool(string poolName);
+    void ChangeSitePhysicalPath(string siteName, string physicalPath);
+}
 
 public sealed class IisService(IOptions<IisOptions> options) : IIisService
 {
@@ -54,6 +64,49 @@ public sealed class IisService(IOptions<IisOptions> options) : IIisService
         site.ApplicationDefaults.ApplicationPoolName = project.ApplicationPoolName;
         site.Applications["/"].ApplicationPoolName = project.ApplicationPoolName;
         site.Applications["/"].VirtualDirectories["/"].PhysicalPath = sitePath;
+        manager.CommitChanges();
+    }
+
+    public void StartSite(string siteName)
+    {
+        EnsureWindows();
+        using var manager = new ServerManager();
+        var site = manager.Sites[siteName] ?? throw new InvalidOperationException($"IIS sitesi bulunamadı: {siteName}");
+        site.Start();
+    }
+
+    public void StopSite(string siteName)
+    {
+        EnsureWindows();
+        using var manager = new ServerManager();
+        var site = manager.Sites[siteName] ?? throw new InvalidOperationException($"IIS sitesi bulunamadı: {siteName}");
+        site.Stop();
+    }
+
+    public void StartAppPool(string poolName)
+    {
+        EnsureWindows();
+        using var manager = new ServerManager();
+        var pool = manager.ApplicationPools[poolName] ?? throw new InvalidOperationException($"Application Pool bulunamadı: {poolName}");
+        pool.Start();
+    }
+
+    public void StopAppPool(string poolName)
+    {
+        EnsureWindows();
+        using var manager = new ServerManager();
+        var pool = manager.ApplicationPools[poolName] ?? throw new InvalidOperationException($"Application Pool bulunamadı: {poolName}");
+        pool.Stop();
+    }
+
+    public void ChangeSitePhysicalPath(string siteName, string physicalPath)
+    {
+        EnsureWindows();
+        var fullPath = Path.GetFullPath(physicalPath);
+        if (!fullPath.StartsWith(_root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("Dizin izin verilen IIS kökünün altında olmalıdır.");
+        using var manager = new ServerManager();
+        var site = manager.Sites[siteName] ?? throw new InvalidOperationException($"IIS sitesi bulunamadı: {siteName}");
+        site.Applications["/"].VirtualDirectories["/"].PhysicalPath = fullPath;
         manager.CommitChanges();
     }
 

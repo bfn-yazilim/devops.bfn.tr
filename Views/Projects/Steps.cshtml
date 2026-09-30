@@ -1,10 +1,33 @@
-@model DevOpsProject
-@{ ViewData["Title"] = "Güncelleme Adımları"; }
+@model StepsPageViewModel
+@{ ViewData["Title"] = "Güncelleme Adımları"; var project = Model.Project; }
 @Html.AntiForgeryToken()
-<div class="mb-6 flex flex-wrap items-center justify-between gap-3"><div><h2 class="text-2xl font-bold">@Model.Name</h2><p class="text-base-content/60">Adımları sürükleyerek çalışma sırasını değiştirin.</p></div><div class="flex gap-2"><a asp-action="Edit" asp-route-id="@Model.UId" class="btn btn-ghost">Proje ayarları</a><a asp-action="StepEdit" asp-route-projectId="@Model.UId" class="btn btn-primary">+ Adım ekle</a></div></div>
-<div id="steps" data-project-id="@Model.Id" class="space-y-3">
-@foreach(var step in Model.DeploymentSteps){<div draggable="true" data-step-id="@step.Id" class="step-item card cursor-grab border border-base-300 bg-base-100 shadow-sm"><div class="card-body flex-row items-center gap-4 p-4"><span class="text-xl text-base-content/30">⠿</span><span class="badge badge-outline">@step.SortOrder</span><div class="min-w-0 flex-1"><strong class="block">@step.Name</strong><span class="text-sm text-base-content/60">@step.Type · @step.TimeoutSeconds sn</span></div>@if(!step.IsEnabled){<span class="badge">Pasif</span>}<a asp-action="StepEdit" asp-route-projectId="@Model.UId" asp-route-id="@step.UId" class="btn btn-ghost btn-sm">Ayarla</a><form asp-action="DeleteStep" asp-route-id="@step.Id" method="post" onsubmit="return confirm('Adım silinsin mi?')"><button class="btn btn-ghost btn-sm text-error">Sil</button></form></div></div>}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3"><div><div class="flex items-center gap-2"><h2 class="text-2xl font-bold">@project.Name</h2><span class="badge @ProjectEnvironmentDisplay.BadgeClass(project.Environment)">@ProjectEnvironmentDisplay.Label(project.Environment)</span></div><p class="text-base-content/60">@(Model.IsRunning ? "Güncelleme çalışıyor…" : "Adımları sürükleyerek çalışma sırasını değiştirin.")</p></div><div class="flex gap-2"><a asp-action="Edit" asp-route-id="@project.UId" class="btn btn-ghost">Proje ayarları</a><a asp-action="StepEdit" asp-route-projectId="@project.UId" class="btn btn-primary">+ Adım ekle</a></div></div>
+<div id="steps" data-project-id="@project.Id" class="space-y-3">
+@foreach(var step in project.DeploymentSteps){
+    var status = Model.StepStatuses.GetValueOrDefault(step.Id, "");
+    <div draggable="@(Model.IsRunning ? "false" : "true")" data-step-id="@step.Id" class="step-item card border border-base-300 bg-base-100 shadow-sm @(Model.IsRunning ? "" : "cursor-grab") @(status == "Running" ? "border-primary" : "")">
+        <div class="card-body flex-row items-center gap-4 p-4">
+            <span class="flex size-6 shrink-0 items-center justify-center">
+                @if (status == "Running") { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="size-5 animate-spin text-primary"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"/><path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> }
+                else if (status == "Succeeded") { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5 text-success"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> }
+                else if (status == "Failed") { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5 text-error"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg> }
+                else if (status == "Skipped") { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5 text-base-content/30"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" /></svg> }
+                else { <span class="text-xl text-base-content/30">⠿</span> }
+            </span>
+            <span class="badge badge-outline">@step.SortOrder</span>
+            <div class="min-w-0 flex-1"><strong class="block">@step.Name</strong><span class="text-sm text-base-content/60">@step.StepType.Name · @step.TimeoutSeconds sn</span></div>
+            @if(!step.IsEnabled){<span class="badge">Pasif</span>}
+            <a asp-action="StepEdit" asp-route-projectId="@project.UId" asp-route-id="@step.UId" class="btn btn-ghost btn-sm">Ayarla</a>
+            <form asp-action="DeleteStep" asp-route-id="@step.Id" method="post" onsubmit="return confirm('Adım silinsin mi?')"><button class="btn btn-ghost btn-sm text-error">Sil</button></form>
+        </div>
+    </div>
+}
 </div>
-@if(Model.DeploymentSteps.Count==0){<div class="rounded-box border border-dashed border-base-300 bg-base-100 py-14 text-center"><p class="text-base-content/60">Henüz güncelleme adımı eklenmedi.</p></div>}
+@if(project.DeploymentSteps.Count==0){<div class="rounded-box border border-dashed border-base-300 bg-base-100 py-14 text-center"><p class="text-base-content/60">Henüz güncelleme adımı eklenmedi.</p></div>}
 <div class="alert alert-info mt-6"><span><strong>Kesintisiz yayın önerisi:</strong> Clone → Install → Publish → yeni sürüm dizinine kopyala → Health Check → IIS dizinini değiştir. Eski sürümü geri dönüş için saklayın.</span></div>
-@section Scripts { <script>window.setupStepSorting?.();</script> }
+@section Scripts {
+<script>
+window.setupStepSorting?.();
+@if (Model.IsRunning) { <text>setTimeout(() => location.reload(), 2500);</text> }
+</script>
+}

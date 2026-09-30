@@ -22,8 +22,8 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
         ModelState.Remove(nameof(model.ApplicationPoolName));
         if (!ModelState.IsValid) return View(model);
         var name = model.Name.Trim();
-        if (await db.Projects.AnyAsync(x => x.Name == name)) { ModelState.AddModelError(nameof(model.Name), "Bu proje adı zaten kullanılıyor."); return View(model); }
-        var project = new DevOpsProject { Name = name, IisSiteName = name, ApplicationPoolName = name, ZeroDowntimeEnabled = true };
+        if (await db.Projects.AnyAsync(x => x.Name == name && x.Environment == model.Environment)) { ModelState.AddModelError(nameof(model.Name), "Bu proje adı ve ortam kombinasyonu zaten kullanılıyor."); return View(model); }
+        var project = new DevOpsProject { Name = name, Environment = model.Environment, IisSiteName = name, ApplicationPoolName = name, ZeroDowntimeEnabled = true };
         db.Projects.Add(project);
         await db.SaveChangesAsync();
         return RedirectToAction(nameof(Edit), new { id = project.UId });
@@ -33,7 +33,7 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
     {
         var p = await db.Projects.FirstOrDefaultAsync(x => x.UId == id);
         if (p is null) return NotFound();
-        return View(new ProjectEditViewModel { Id = p.Id, UId = p.UId, Name = p.Name, Url = p.Url, IisSiteName = p.IisSiteName, ApplicationPoolName = p.ApplicationPoolName, RepositoryUrl = p.RepositoryUrl, WorkingDirectory = p.WorkingDirectory, ZeroDowntimeEnabled = p.ZeroDowntimeEnabled });
+        return View(new ProjectEditViewModel { Id = p.Id, UId = p.UId, Name = p.Name, Environment = p.Environment, Url = p.Url, IisSiteName = p.IisSiteName, ApplicationPoolName = p.ApplicationPoolName, RepositoryUrl = p.RepositoryUrl, WorkingDirectory = p.WorkingDirectory, ZeroDowntimeEnabled = p.ZeroDowntimeEnabled });
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -42,8 +42,8 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
         if (!ModelState.IsValid) return View(model);
         var p = await db.Projects.FindAsync(model.Id);
         if (p is null) return NotFound();
-        if (await db.Projects.AnyAsync(x => x.Id != model.Id && x.Name == model.Name.Trim())) { ModelState.AddModelError(nameof(model.Name), "Bu proje adı zaten kullanılıyor."); return View(model); }
-        p.Name = model.Name.Trim(); p.Url = model.Url?.Trim(); p.IisSiteName = model.IisSiteName.Trim();
+        if (await db.Projects.AnyAsync(x => x.Id != model.Id && x.Name == model.Name.Trim() && x.Environment == model.Environment)) { ModelState.AddModelError(nameof(model.Name), "Bu proje adı ve ortam kombinasyonu zaten kullanılıyor."); return View(model); }
+        p.Name = model.Name.Trim(); p.Environment = model.Environment; p.Url = model.Url?.Trim(); p.IisSiteName = model.IisSiteName.Trim();
         p.ApplicationPoolName = model.ApplicationPoolName.Trim(); p.RepositoryUrl = model.RepositoryUrl?.Trim();
         p.WorkingDirectory = model.WorkingDirectory?.Trim(); p.ZeroDowntimeEnabled = model.ZeroDowntimeEnabled; p.ModDate = DateTime.UtcNow;
         await db.SaveChangesAsync(); TempData["Message"] = "Proje güncellendi.";
@@ -52,8 +52,16 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
 
     public async Task<IActionResult> Steps(Guid id)
     {
-        var project = await db.Projects.Include(x => x.DeploymentSteps.OrderBy(s => s.SortOrder)).FirstOrDefaultAsync(x => x.UId == id);
-        return project is null ? NotFound() : View(project);
+        var project = await db.Projects.Include(x => x.DeploymentSteps.OrderBy(s => s.SortOrder)).ThenInclude(s => s.StepType).FirstOrDefaultAsync(x => x.UId == id);
+        if (project is null) return NotFound();
+        var latestRun = await db.DeploymentRuns.Where(x => x.ProjectId == project.Id).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+        var model = new StepsPageViewModel { Project = project, IsRunning = latestRun?.Status == "Running" };
+        if (latestRun is not null)
+        {
+            var stepStatuses = await db.DeploymentRunSteps.Where(x => x.DeploymentRunId == latestRun.Id).ToListAsync();
+            model.StepStatuses = stepStatuses.ToDictionary(x => x.DeploymentStepId, x => x.Status);
+        }
+        return View(model);
     }
 
     [HttpPost, ValidateAntiForgeryToken]
@@ -69,11 +77,12 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
     {
         var project = await db.Projects.FirstOrDefaultAsync(x => x.UId == projectId);
         if (project is null) return NotFound();
-        if (id is null) return View(new DeploymentStepEditViewModel { ProjectId = project.Id, ProjectUId = project.UId });
-        var step = await db.DeploymentSteps.FirstOrDefaultAsync(x => x.UId == id && x.ProjectId == project.Id);
+        var stepTypes = await db.StepTypes.Where(x => x.IsActive).OrderBy(x => x.SortOrder).ToListAsync();
+        if (id is null) return View(new DeploymentStepEditViewModel { ProjectId = project.Id, ProjectUId = project.UId, StepTypes = stepTypes, StepTypeId = stepTypes.FirstOrDefault()?.Id ?? 0 });
+        var step = await db.DeploymentSteps.Include(x => x.StepType).FirstOrDefaultAsync(x => x.UId == id && x.ProjectId == project.Id);
         if (step is null) return NotFound();
-        var model = new DeploymentStepEditViewModel { Id = step.Id, ProjectId = step.ProjectId, ProjectUId = project.UId, Name = step.Name, Type = step.Type, TimeoutSeconds = step.TimeoutSeconds, IsEnabled = step.IsEnabled, ContinueOnError = step.ContinueOnError, SettingsJson = step.SettingsJson };
-        if (step.Type == DeploymentStepType.GitClone)
+        var model = new DeploymentStepEditViewModel { Id = step.Id, ProjectId = step.ProjectId, ProjectUId = project.UId, Name = step.Name, StepTypeId = step.StepTypeId, StepTypeCode = step.StepType.Code, TimeoutSeconds = step.TimeoutSeconds, IsEnabled = step.IsEnabled, ContinueOnError = step.ContinueOnError, SettingsJson = step.SettingsJson, StepTypes = stepTypes };
+        if (step.StepType.Code == "GitClone")
         {
             var git = JsonSerializer.Deserialize<GitCloneSettings>(step.SettingsJson) ?? new GitCloneSettings();
             model.GitRepositoryUrl = git.RepositoryUrl; model.GitUsername = git.Username; model.GitPassword = git.Password; model.GitBranch = git.Branch;
@@ -84,13 +93,15 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> StepEdit(DeploymentStepEditViewModel model)
     {
-        if (model.Type == DeploymentStepType.GitClone)
+        var stepType = await db.StepTypes.FindAsync(model.StepTypeId);
+        if (stepType is null) return BadRequest();
+        if (stepType.Code == "GitClone")
         {
             ModelState.Remove(nameof(model.SettingsJson));
             model.SettingsJson = JsonSerializer.Serialize(new GitCloneSettings { RepositoryUrl = model.GitRepositoryUrl?.Trim() ?? "", Username = model.GitUsername?.Trim() ?? "", Password = model.GitPassword ?? "", Branch = model.GitBranch?.Trim() ?? "" });
         }
         else { try { JsonDocument.Parse(model.SettingsJson); } catch (JsonException) { ModelState.AddModelError(nameof(model.SettingsJson), "Geçerli bir JSON girin."); } }
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid) { model.StepTypes = await db.StepTypes.Where(x => x.IsActive).OrderBy(x => x.SortOrder).ToListAsync(); return View(model); }
         DeploymentStep step;
         if (model.Id == 0)
         {
@@ -99,7 +110,7 @@ public sealed class ProjectsController(ApplicationDbContext db, Bfn.DevOps.Servi
             db.DeploymentSteps.Add(step);
         }
         else { step = await db.DeploymentSteps.FirstOrDefaultAsync(x => x.Id == model.Id && x.ProjectId == model.ProjectId) ?? throw new InvalidOperationException("Adım bulunamadı."); }
-        step.Name = model.Name.Trim(); step.Type = model.Type; step.TimeoutSeconds = model.TimeoutSeconds; step.IsEnabled = model.IsEnabled; step.ContinueOnError = model.ContinueOnError; step.SettingsJson = model.SettingsJson;
+        step.Name = model.Name.Trim(); step.StepTypeId = model.StepTypeId; step.TimeoutSeconds = model.TimeoutSeconds; step.IsEnabled = model.IsEnabled; step.ContinueOnError = model.ContinueOnError; step.SettingsJson = model.SettingsJson;
         await db.SaveChangesAsync(); return RedirectToAction(nameof(Steps), new { id = model.ProjectUId });
     }
 

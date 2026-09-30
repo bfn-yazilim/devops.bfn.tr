@@ -30,10 +30,13 @@ public abstract class AuditableEntity : IAuditable
     public bool IsDeleted { get; set; }
 }
 
+public enum ProjectEnvironment { Dev, Test, PreTest, PreProd, Prod }
+
 public sealed class DevOpsProject : AuditableEntity
 {
     public int Id { get; set; }
     [Required, MaxLength(100)] public string Name { get; set; } = "";
+    public ProjectEnvironment Environment { get; set; } = ProjectEnvironment.Dev;
     [MaxLength(200)] public string? Url { get; set; }
     [MaxLength(100)] public string IisSiteName { get; set; } = "";
     [MaxLength(100)] public string ApplicationPoolName { get; set; } = "";
@@ -43,11 +46,13 @@ public sealed class DevOpsProject : AuditableEntity
     public List<DeploymentStep> DeploymentSteps { get; set; } = [];
 }
 
-public enum DeploymentStepType
+public sealed class StepType : AuditableEntity
 {
-    GitClone, NpmInstall, DotnetPublish, FileCopy, FileDelete, FileCopyAll,
-    FileDeleteAll, IisStop, IisStart, IisChangeDirectory, AppPoolStart, AppPoolStop,
-    HealthCheck, PowerShell
+    public int Id { get; set; }
+    [Required, MaxLength(50)] public string Code { get; set; } = "";
+    [Required, MaxLength(100)] public string Name { get; set; } = "";
+    public int SortOrder { get; set; }
+    public bool IsActive { get; set; } = true;
 }
 
 public sealed class DeploymentStep : AuditableEntity
@@ -56,7 +61,8 @@ public sealed class DeploymentStep : AuditableEntity
     public int ProjectId { get; set; }
     public DevOpsProject Project { get; set; } = null!;
     [Required, MaxLength(120)] public string Name { get; set; } = "";
-    public DeploymentStepType Type { get; set; }
+    public int StepTypeId { get; set; }
+    public StepType StepType { get; set; } = null!;
     public int SortOrder { get; set; }
     public bool IsEnabled { get; set; } = true;
     public bool ContinueOnError { get; set; }
@@ -100,7 +106,20 @@ public sealed class BoardCard : AuditableEntity
     public CardPriority Priority { get; set; } = CardPriority.Unspecified;
     public DateTime? DueAtUtc { get; set; }
     [MaxLength(300)] public string? Tags { get; set; }
+    [MaxLength(500)] public string? AttachmentUrl { get; set; }
+    [MaxLength(200)] public string? AttachmentLabel { get; set; }
     public List<BoardCardComment> Comments { get; set; } = [];
+    public List<BoardCardSubtask> Subtasks { get; set; } = [];
+}
+
+public sealed class BoardCardSubtask : AuditableEntity
+{
+    public int Id { get; set; }
+    public int BoardCardId { get; set; }
+    public BoardCard Card { get; set; } = null!;
+    [Required, MaxLength(200)] public string Title { get; set; } = "";
+    public bool IsDone { get; set; }
+    public int SortOrder { get; set; }
 }
 
 public sealed class BoardCardComment : AuditableEntity
@@ -123,4 +142,17 @@ public sealed class DeploymentRun : AuditableEntity
     public DateTime? FinishedAtUtc { get; set; }
     [MaxLength(450)] public string RequestedByUserId { get; set; } = "";
     public string Log { get; set; } = "";
+    public List<DeploymentRunStep> StepRuns { get; set; } = [];
+}
+
+public sealed class DeploymentRunStep : AuditableEntity
+{
+    public int Id { get; set; }
+    public int DeploymentRunId { get; set; }
+    public DeploymentRun Run { get; set; } = null!;
+    public int DeploymentStepId { get; set; }
+    public DeploymentStep Step { get; set; } = null!;
+    [MaxLength(40)] public string Status { get; set; } = "Pending";
+    public DateTime? StartedAtUtc { get; set; }
+    public DateTime? FinishedAtUtc { get; set; }
 }

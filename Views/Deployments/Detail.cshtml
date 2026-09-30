@@ -1,0 +1,66 @@
+@model DeploymentDetailViewModel
+@{ ViewData["Title"] = "Güncelleme Detayı"; var project = Model.Project; var run = Model.LatestRun; }
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <div><div class="flex items-center gap-2"><h2 class="text-2xl font-bold">@project.Name</h2><span class="badge @ProjectEnvironmentDisplay.BadgeClass(project.Environment)">@ProjectEnvironmentDisplay.Label(project.Environment)</span></div><p class="text-base-content/60">@(Model.IsRunning ? "Güncelleme çalışıyor…" : "Adımların son çalıştırma durumu ve logları.")</p></div>
+    <div class="flex gap-2">
+        <a asp-action="Index" class="btn btn-ghost">← Güncelleme</a>
+        <form asp-action="StartDeployment" asp-route-id="@project.UId" method="post"><button class="btn btn-primary" @(Model.IsRunning ? "disabled" : "")>@(Model.IsRunning ? "Çalışıyor…" : "Yeniden başlat")</button></form>
+    </div>
+</div>
+
+@if (run is null) {
+    <div class="rounded-box border border-dashed border-base-300 bg-base-100 py-14 text-center"><p class="text-base-content/60">Bu proje için henüz bir güncelleme çalıştırılmadı.</p></div>
+} else {
+    <div class="mb-4 flex flex-wrap items-center gap-3 text-sm">
+        <span class="badge @(run.Status switch { "Running" => "badge-info", "Succeeded" => "badge-success", "Failed" => "badge-error", _ => "badge-ghost" })">@run.Status</span>
+        <span class="text-base-content/60">Başladı: @run.StartedAtUtc?.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</span>
+        @if (run.FinishedAtUtc is not null) { <span class="text-base-content/60">Bitti: @run.FinishedAtUtc.Value.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</span> }
+    </div>
+
+    <div class="mb-3 text-sm font-semibold text-base-content/70">Adımlar</div>
+    <div id="deployment-steps" class="space-y-3">
+    @foreach (var step in Model.Steps) {
+        var status = Model.StepStatuses.GetValueOrDefault(step.Id, "");
+        <div class="card border border-base-300 bg-base-100 shadow-sm @(status == "Running" ? "border-primary" : "")">
+            <div class="card-body flex-row items-center gap-4 p-4">
+                <span class="flex size-6 shrink-0 items-center justify-center">
+                    @if (status == "Running") { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="size-5 animate-spin text-primary"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"/><path d="M21 12a9 9 0 00-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> }
+                    else if (status == "Succeeded") { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5 text-success"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> }
+                    else if (status == "Failed") { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5 text-error"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg> }
+                    else if (status == "Skipped") { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5 text-base-content/30"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" /></svg> }
+                    else { <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5 text-base-content/30"><circle cx="12" cy="12" r="9" /></svg> }
+                </span>
+                <div class="min-w-0 flex-1"><strong class="block">@step.Name</strong><span class="text-sm text-base-content/60">@step.StepType.Name · @step.TimeoutSeconds sn</span></div>
+                <span class="badge badge-ghost text-xs">@(string.IsNullOrEmpty(status) ? "Bekliyor" : status switch { "Pending" => "Bekliyor", "Running" => "Çalışıyor", "Succeeded" => "Tamamlandı", "Failed" => "Hata", "Skipped" => "Atlandı", _ => status })</span>
+            </div>
+        </div>
+    }
+    </div>
+
+    <div class="mt-6">
+        <div class="mb-2 text-sm font-semibold text-base-content/70">Log</div>
+        <pre id="deployment-log" class="max-h-96 overflow-y-auto rounded-box border border-base-300 bg-base-200 p-4 text-xs whitespace-pre-wrap">@run.Log</pre>
+    </div>
+}
+
+@section Scripts {
+@if (Model.IsRunning) {
+<script>
+(function () {
+    var runId = @run!.Id;
+    var poll = async function () {
+        try {
+            var res = await fetch('/Deployments/RunStatus/' + runId);
+            if (!res.ok) return;
+            var data = await res.json();
+            var log = document.getElementById('deployment-log');
+            if (log) log.textContent = data.log;
+            if (data.status === 'Running') setTimeout(poll, 2000);
+            else location.reload();
+        } catch { setTimeout(poll, 2000); }
+    };
+    setTimeout(poll, 2000);
+})();
+</script>
+}
+}

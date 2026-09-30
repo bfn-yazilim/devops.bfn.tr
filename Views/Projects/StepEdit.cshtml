@@ -11,7 +11,9 @@
             </fieldset>
             <fieldset class="fieldset">
                 <legend class="fieldset-legend">Adım türü</legend>
-                <select asp-for="Type" asp-items="Html.GetEnumSelectList<DeploymentStepType>()" id="step-type" class="select w-full"></select>
+                <select asp-for="StepTypeId" id="step-type" class="select w-full">
+                    @foreach (var t in Model.StepTypes) { <option value="@t.Id" data-code="@t.Code" selected="@(t.Id == Model.StepTypeId)">@t.Name</option> }
+                </select>
             </fieldset>
             <fieldset class="fieldset">
                 <legend class="fieldset-legend">Zaman aşımı (saniye)</legend>
@@ -57,7 +59,7 @@
     var gitFields = document.getElementById('git-clone-fields');
     var jsonField = document.getElementById('settings-json-field');
     var toggle = function () {
-        var isGitClone = typeSelect.value === 'GitClone';
+        var isGitClone = typeSelect.options[typeSelect.selectedIndex]?.dataset.code === 'GitClone';
         gitFields.classList.toggle('hidden', !isGitClone);
         jsonField.classList.toggle('hidden', isGitClone);
     };
